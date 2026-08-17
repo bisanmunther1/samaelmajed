@@ -4,6 +4,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import Skeleton from "../ui/Skeleton/Skeleton";
 import ErrorState from "../ui/ErrorState/ErrorState";
+import ReviewsSection from "../Reviews/ReviewsSection";
 
 export default function Hotels_reserve(props) {
 
@@ -255,6 +256,10 @@ export default function Hotels_reserve(props) {
             </>
           )}
         </div>
+
+        {/* This panel is the hotel's detail view, so it carries the hotel's
+            reviews the same way step 1 carries the trip's. */}
+        <ReviewsSection targetType="hotel" targetId={ele.name} />
       </div>
     </>
   );

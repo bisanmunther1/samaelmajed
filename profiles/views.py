@@ -4,7 +4,10 @@ from rest_framework.decorators import api_view
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from django.conf import settings
-from .models import Profile , Trip_per_user
+from . import errors
+from .errors import booking_error
+from .models import NO_HOTEL_SENTINEL, Profile , Trip_per_user
+from hotels.models import Hotels
 from trips.models import Trips
 import os
 
@@ -43,45 +46,62 @@ class Update_data(APIView):
    
 
 class Update_profile_data(APIView):
- 
+
   def post(self , request , *args, **kwargs):
-  
+
     data = request.data.copy()
 
-    row_trip_update=Trips.objects.get(name = data['trip_name'])
+    # The request payload is unchanged — the client still sends names. They are
+    # resolved to real records here, and an unknown name is now rejected with a
+    # coded error instead of being stored as an unmatched string.
+    row_trip_update = Trips.objects.filter(name = data['trip_name']).first()
+
+    if row_trip_update is None:
+      return Response(booking_error(errors.TRIP_NOT_FOUND), status =400)
 
     if not row_trip_update.available:
-      return Response(status =400)
+      return Response(booking_error(errors.TRIP_NOT_AVAILABLE), status =400)
 
-    hotel_name = data['hotel_name'] if data['hotel_name'] != 'no_name' else None
+    raw_hotel_name = data['hotel_name']
+    hotel = None
+
+    if raw_hotel_name and raw_hotel_name != NO_HOTEL_SENTINEL:
+      hotel = Hotels.objects.filter(name = raw_hotel_name).first()
+      if hotel is None:
+        return Response(booking_error(errors.HOTEL_NOT_FOUND), status =400)
 
     duplicate = Trip_per_user.objects.filter(
       username_id = data['username'],
-      trip_name = data['trip_name'],
+      trip = row_trip_update,
       trip_date = data['trip_date'],
-      hotel_name = hotel_name,
+      hotel = hotel,
     ).exists()
 
     if duplicate:
       return Response(status =200)
 
     row = Trip_per_user(username_id = data['username'] )
+    # Set explicitly rather than by changing the model default: this endpoint
+    # records an intent to book, and nothing downstream of PayPal reports back
+    # that the money actually moved. Staff confirm payment in the admin, and
+    # only then can the booking be reviewed (FR-38).
+    row.is_paid = False
     row.price = data['price']
     row.trip_date =  data['trip_date']
-    row.trip_name = data['trip_name']
-    if hotel_name is not None:
-      row.hotel_name = hotel_name
+    row.trip = row_trip_update
+    if hotel is not None:
+      row.hotel = hotel
       row.hotel_reserve_date =data['hotel_reserve_date']
 
 
     old_number = row_trip_update.num
-    
+
     row_trip_update.num = old_number + 1
-     
+
     row.save()
-    
+
     row_trip_update.save()
-    
+
     return Response( status =200)
  
 
@@ -101,15 +121,34 @@ def send_data(request,name):
      
           
 
+# The exact keys this endpoint has always published. Profile.js reads
+# trip_name / hotel_name off each row, so they stay in the payload — sourced
+# from the linked records now instead of from free-text columns.
+BOOKING_ROW_FIELDS = [
+    'id', 'username_id', 'trip_date', 'hotel_reserve_date', 'price', 'is_paid',
+]
+
+
 @api_view(['GET'])
 def send_profile_data(request,name):
- 
-    trip_per_user = Trip_per_user.objects.filter(username_id = name).values()
- 
+
+    trip_per_user = Trip_per_user.objects.filter(username_id = name).values(
+      *BOOKING_ROW_FIELDS, 'trip__name', 'hotel__name',
+    )
+
     if trip_per_user == None :
      return Response( status =404)
-     
-    return  Response(list(trip_per_user )  )
+
+    result = [
+      {
+        **{field: row[field] for field in BOOKING_ROW_FIELDS},
+        'trip_name': row['trip__name'],
+        'hotel_name': row['hotel__name'],
+      }
+      for row in trip_per_user
+    ]
+
+    return  Response( result  )
          
  
  

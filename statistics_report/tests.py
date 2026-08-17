@@ -56,25 +56,27 @@ class StatisticsTestBase(TestCase):
             access_bus_price_1=50, bus_start_at_1='2026-01-01T00:00:00Z',
         )
 
-        Hotels.objects.create(trip_name_id=self.trip_with_plane.name, name='Nile Hotel', price=50)
+        self.nile_hotel = Hotels.objects.create(
+            trip_name_id=self.trip_with_plane.name, name='Nile Hotel', price=50,
+        )
 
         # In date range [2026-02-01, 2026-02-28]
         Trip_per_user.objects.create(
-            username=admin_profile, trip_name='Cairo Trip', trip_date=date(2026, 2, 10),
-            hotel_name='Nile Hotel', hotel_reserve_date=date(2026, 2, 10), price=150,
+            username=admin_profile, trip=self.trip_with_plane, trip_date=date(2026, 2, 10),
+            hotel=self.nile_hotel, hotel_reserve_date=date(2026, 2, 10), price=150,
         )
         Trip_per_user.objects.create(
-            username=regular_profile, trip_name='Cairo Trip', trip_date=date(2026, 2, 15),
-            hotel_name='Nile Hotel', hotel_reserve_date=date(2026, 2, 15), price=150,
+            username=regular_profile, trip=self.trip_with_plane, trip_date=date(2026, 2, 15),
+            hotel=self.nile_hotel, hotel_reserve_date=date(2026, 2, 15), price=150,
         )
         Trip_per_user.objects.create(
-            username=regular_profile, trip_name='Aswan Trip', trip_date=date(2026, 2, 20),
-            hotel_name=None, price=80,
+            username=regular_profile, trip=self.trip_with_bus, trip_date=date(2026, 2, 20),
+            hotel=None, price=80,
         )
         # Outside the date range above
         Trip_per_user.objects.create(
-            username=admin_profile, trip_name='Aswan Trip', trip_date=date(2026, 5, 1),
-            hotel_name=None, price=80,
+            username=admin_profile, trip=self.trip_with_bus, trip_date=date(2026, 5, 1),
+            hotel=None, price=80,
         )
 
 

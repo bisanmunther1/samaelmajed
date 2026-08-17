@@ -104,6 +104,8 @@ export default function Photo_beach_city_nature(props) {
           rate={e.rate}
           visitors={e.num}
           description={e.desc}
+          averageRating={e.average_rating}
+          reviewsCount={e.reviews_count}
           onSelect={openBooking}
         />
       ))}

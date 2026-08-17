@@ -40,13 +40,45 @@ def dell(sender , instance , using ,  **kwargs):
  
  
  
+# What the booking form sends when the customer picked no hotel. It is a
+# sentinel, not a hotel name — never resolve it against the Hotels catalogue.
+NO_HOTEL_SENTINEL = 'no_name'
+
+
 class Trip_per_user(models.Model):
    username = models.ForeignKey(Profile, verbose_name="username", on_delete=models.CASCADE,max_length=255 )
-   trip_name = models.CharField(max_length=255,null=True ,blank=True ,)
    trip_date = models.DateField(null=True ,blank=True ,)
-   hotel_name = models.CharField( max_length=255 , null=True ,blank=True)
    hotel_reserve_date= models.DateField( null=True ,blank=True  )
    price = models.DecimalField(max_digits=6 , decimal_places=2,null=True ,blank=True )
+
+   # The booking's trip and hotel. These replaced the free-text trip_name /
+   # hotel_name columns: every join used to be a string comparison, which meant
+   # a renamed or differently-cased record silently stopped matching.
+   #
+   # Anything that needs the name reads it through the relation (`trip.name`).
+   # Referenced lazily by label because profiles is loaded before hotels in
+   # INSTALLED_APPS.
+   #
+   # PROTECT, not CASCADE: deleting a trip that people have booked should fail
+   # loudly rather than quietly erase their booking history.
+   trip = models.ForeignKey(
+       'trips.Trips', null=True, blank=True, on_delete=models.PROTECT,
+       related_name='bookings', verbose_name='trip',
+   )
+   hotel = models.ForeignKey(
+       'hotels.Hotels', null=True, blank=True, on_delete=models.PROTECT,
+       related_name='bookings', verbose_name='hotel',
+   )
+
+   # FR-38 refuses a review on a booking that is not paid.
+   #
+   # The default stays True so the rows that predate this field — written when
+   # a booking implied payment — keep their meaning and need no data migration.
+   # New bookings are created with is_paid=False explicitly in
+   # profiles.views.Update_profile_data, because nothing in the PayPal flow
+   # persists a payment result yet; confirmation is a manual admin step until
+   # FR-40 wires a real capture handler.
+   is_paid = models.BooleanField(default=True, verbose_name='Paid / completed')
 
    class Meta:
      verbose_name = 'Booking'

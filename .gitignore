@@ -138,3 +138,6 @@ db.sqlite3
 coverage/
 media/
 screenshots/
+
+# Assistant working memory (local only)
+CLAUDE_CONTEXT.md

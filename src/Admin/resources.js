@@ -99,7 +99,10 @@ export const RESOURCES = {
     label: "Bookings",
     endpoint: "/bookings/",
     pk_field: "id",
-    columns: ["id", "username", "trip_name", "trip_date", "hotel_name", "price"],
+    columns: ["id", "username", "trip_name", "trip_date", "hotel_name", "price", "is_paid"],
+    // is_paid is the gate on whether a booking can be reviewed (FR-38), so an
+    // operator needs to be able to pull up the unpaid ones.
+    filters: [{ name: "is_paid", label: "Payment", type: "boolean", true_label: "Paid", false_label: "Unpaid" }],
     fields: [
       { name: "id", label: "ID", type: "readonly", group: "Details" },
       {
@@ -111,6 +114,7 @@ export const RESOURCES = {
       { name: "hotel_name", label: "Hotel name", type: "text", group: "Details" },
       { name: "hotel_reserve_date", label: "Hotel reservation date", type: "date", group: "Details" },
       { name: "price", label: "Price", type: "number", step: "any", group: "Details" },
+      { name: "is_paid", label: "Paid / completed (allows reviewing)", type: "boolean", group: "Details" },
     ],
   },
 

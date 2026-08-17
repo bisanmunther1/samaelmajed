@@ -24,10 +24,24 @@ export default function ResourceListPage({ resource_key: resource_key_prop }) {
   const [status, set_status] = useState("loading"); // loading | error | success
   const [rows, set_rows] = useState([]);
   const [retry_key, set_retry_key] = useState(0);
+  const [filter_values, set_filter_values] = useState({}); // { [field]: "" | "true" | "false" }
+
+  const filters = resource.filters || [];
+
+  // Resource lists come back unpaginated, so filtering is a local narrowing of
+  // what is already on screen rather than another round trip.
+  const visible_rows = rows.filter((row) =>
+    filters.every((filter) => {
+      const selected = filter_values[filter.name];
+      if (!selected) return true;
+      return String(Boolean(row[filter.name])) === selected;
+    })
+  );
 
   useEffect(() => {
     let cancelled = false;
     set_status("loading");
+    set_filter_values({});
 
     api.get(resource.endpoint)
       .then((res) => {
@@ -78,11 +92,38 @@ export default function ResourceListPage({ resource_key: resource_key_prop }) {
         <ErrorState message={`We couldn't load ${resource.label.toLowerCase()}.`} onRetry={() => set_retry_key((k) => k + 1)} />
       )}
 
+      {status === "success" && rows.length > 0 && filters.length > 0 && (
+        <div className="admin_filter_bar">
+          {filters.map((filter) => (
+            <label className="admin_filter" key={filter.name}>
+              <span>{filter.label}</span>
+              <select
+                value={filter_values[filter.name] || ""}
+                onChange={(e) =>
+                  set_filter_values((current) => ({ ...current, [filter.name]: e.target.value }))
+                }
+              >
+                <option value="">All</option>
+                <option value="true">{filter.true_label || "Yes"}</option>
+                <option value="false">{filter.false_label || "No"}</option>
+              </select>
+            </label>
+          ))}
+        </div>
+      )}
+
       {status === "success" && rows.length === 0 && (
         <EmptyState icon="fa-solid fa-inbox" title={`No ${resource.label.toLowerCase()} yet`} />
       )}
 
-      {status === "success" && rows.length > 0 && (
+      {status === "success" && rows.length > 0 && visible_rows.length === 0 && (
+        <EmptyState
+          icon="fa-solid fa-filter"
+          title={`No ${resource.label.toLowerCase()} match this filter`}
+        />
+      )}
+
+      {status === "success" && visible_rows.length > 0 && (
         <div className="admin_table_card">
           <table className="admin_table">
             <thead>
@@ -92,7 +133,7 @@ export default function ResourceListPage({ resource_key: resource_key_prop }) {
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => (
+              {visible_rows.map((row) => (
                 <tr key={row[resource.pk_field]}>
                   {resource.columns.map((col) => (
                     <td key={col}>{format_cell(row[col])}</td>

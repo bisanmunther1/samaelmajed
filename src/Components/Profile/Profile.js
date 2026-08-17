@@ -8,6 +8,7 @@ import EmptyState from "../ui/EmptyState/EmptyState";
 import ErrorState from "../ui/ErrorState/ErrorState";
 import Card from "../ui/Card/Card";
 import Avatar from "../ui/Avatar/Avatar";
+import PendingReviews from "../Reviews/PendingReviews";
 
 const API_BASE = "http://127.0.0.1:8000";
 
@@ -132,6 +133,9 @@ export default function Profile() {
 
             <div id="profile_trips_section">
               <div id="profile_my_trip_word">My Trips</div>
+
+              <PendingReviews />
+
               <Card className="profile_trips_card" padding={false}>
                 {bookings_status === "loading" && (
                   <div className="profile_bookings_skeleton">

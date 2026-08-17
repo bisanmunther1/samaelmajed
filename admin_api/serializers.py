@@ -51,6 +51,12 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class BookingSerializer(serializers.ModelSerializer):
+    # trip_name / hotel_name used to be columns on the booking. They are now
+    # read through the relations, but stay in the payload under the same keys
+    # so the admin's booking table keeps rendering unchanged.
+    trip_name = serializers.CharField(source='trip.name', read_only=True, default=None)
+    hotel_name = serializers.CharField(source='hotel.name', read_only=True, default=None)
+
     class Meta:
         model = Trip_per_user
         fields = '__all__'

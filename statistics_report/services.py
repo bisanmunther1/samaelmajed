@@ -1,8 +1,16 @@
-from django.db.models import Count, OuterRef, Q, Subquery
+from django.db.models import Count, Q
 
 from profiles.models import Profile, Trip_per_user
 from trip_features.models import Trip_features
-from trips.models import Trips
+
+
+def _rename(rows, source_key, output_key):
+    """Relabels a grouped queryset's join key to the name the API already
+    publishes, so the FK conversion is invisible to every client."""
+    return [
+        {output_key: row[source_key], 'bookings_count': row['bookings_count']}
+        for row in rows
+    ]
 
 
 def build_statistics(start_date=None, end_date=None):
@@ -15,10 +23,15 @@ def build_statistics(start_date=None, end_date=None):
 
     total_bookings = bookings.count()
 
-    most_booked_trips = list(
-        bookings.values('trip_name')
+    # Grouped through the foreign key rather than the old free-text column, so
+    # a booking can no longer land in its own bucket because of a renamed or
+    # differently-cased trip name. The output key stays `trip_name`.
+    most_booked_trips = _rename(
+        bookings.filter(trip__isnull=False)
+        .values('trip__name')
         .annotate(bookings_count=Count('pk'))
-        .order_by('-bookings_count')
+        .order_by('-bookings_count'),
+        'trip__name', 'trip_name',
     )
 
     bookings_over_time = [
@@ -44,20 +57,24 @@ def build_statistics(start_date=None, end_date=None):
             .order_by('joined_at')
     ]
 
-    place_subquery = Trips.objects.filter(name=OuterRef('trip_name')).values('place')[:1]
-    bookings_by_destination = list(
-        bookings.annotate(place=Subquery(place_subquery))
-        .values('place')
+    # A plain join now. This used to be a correlated Subquery matching
+    # Trips.name against the booking's free-text trip_name, which returned NULL
+    # for any booking whose stored name no longer matched a trip — those
+    # bookings were silently grouped under an empty destination.
+    bookings_by_destination = _rename(
+        bookings.filter(trip__isnull=False)
+        .values('trip__place')
         .annotate(bookings_count=Count('pk'))
-        .order_by('-bookings_count')
+        .order_by('-bookings_count'),
+        'trip__place', 'place',
     )
 
-    bookings_by_hotel = list(
-        bookings.exclude(hotel_name__isnull=True)
-        .exclude(hotel_name='')
-        .values('hotel_name')
+    bookings_by_hotel = _rename(
+        bookings.filter(hotel__isnull=False)
+        .values('hotel__name')
         .annotate(bookings_count=Count('pk'))
-        .order_by('-bookings_count')
+        .order_by('-bookings_count'),
+        'hotel__name', 'hotel_name',
     )
 
     # Trip_per_user has no field recording which transport a booking used, so
@@ -76,11 +93,11 @@ def build_statistics(start_date=None, end_date=None):
     bookings_by_transport = [
         {
             'transport_method': 'plane',
-            'bookings_count': bookings.filter(trip_name__in=plane_trip_names).count(),
+            'bookings_count': bookings.filter(trip_id__in=plane_trip_names).count(),
         },
         {
             'transport_method': 'bus',
-            'bookings_count': bookings.filter(trip_name__in=bus_trip_names).count(),
+            'bookings_count': bookings.filter(trip_id__in=bus_trip_names).count(),
         },
     ]
 

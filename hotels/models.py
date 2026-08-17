@@ -12,6 +12,13 @@ class Hotels(models.Model):
     h_photo2 = models.ImageField(upload_to='images/reserve/hotels' , verbose_name = 'hotel photo 2' , null=True ,blank=True)
     h_photo3 = models.ImageField(upload_to='images/reserve/hotels' , verbose_name = 'hotel photo 3' , null=True ,blank=True)
     
+    # HAZARD (two of them): as the primary key, this name is what every booking
+    # and review references, so editing it strands those references on a row
+    # that no longer exists rather than renaming the hotel — the admin locks the
+    # field on change to keep that path shut. And because it is the *whole* key,
+    # hotel names are unique across the entire site: two different trips cannot
+    # each offer a hotel called "Hilton". Both are fixed by a surrogate integer
+    # primary key with uniqueness moved to (trip_name, name).
     name = models.CharField(max_length=150  ,verbose_name="hotel name :", primary_key = True)
     price = models.DecimalField(max_digits=6 , decimal_places=2, verbose_name="price per night" , null=True ,blank=True ,default=0)
     rate = models.DecimalField(max_digits=2, decimal_places=1, verbose_name="rate" , null=True ,blank=True ,default=0)    
@@ -23,8 +30,18 @@ class Hotels(models.Model):
     room_services = models.BooleanField(default = False ,verbose_name="Room Services ") 
     beachfront = models.BooleanField(default = False ,verbose_name="Beachfront") 
     gym = models.BooleanField(default = False ,verbose_name="Gym") 
-    cinema = models.BooleanField(default = False ,verbose_name="Cinema") 
-    
+    cinema = models.BooleanField(default = False ,verbose_name="Cinema")
+
+    # Denormalized review aggregates (FR-38), maintained by reviews/signals.py.
+    # Kept separate from `rate` above, which remains the editorial rating.
+    average_rating = models.DecimalField(
+        max_digits=3, decimal_places=2, default=0,
+        editable=False, verbose_name='Average review rating',
+    )
+    reviews_count = models.PositiveIntegerField(
+        default=0, editable=False, verbose_name='Number of reviews',
+    )
+
     class Meta:
      verbose_name = 'Hotel'
      verbose_name_plural = 'Hotels'

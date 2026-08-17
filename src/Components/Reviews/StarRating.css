@@ -1,0 +1,53 @@
+.review-stars {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: #f0a92b;
+  line-height: 1;
+}
+
+.review-stars-sm {
+  font-size: var(--font-size-xs);
+}
+
+.review-stars-md {
+  font-size: var(--font-size-base);
+}
+
+.review-stars-lg {
+  font-size: var(--font-size-2xl);
+  gap: var(--space-2);
+}
+
+.review-stars-value {
+  color: var(--color-neutral-700);
+  font-size: 0.85em;
+  font-weight: 600;
+  margin-inline-start: var(--space-1);
+}
+
+.review-stars-button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  color: inherit;
+  font-size: inherit;
+  line-height: 1;
+  border-radius: var(--radius-sm);
+  transition: transform 0.15s ease;
+}
+
+.review-stars-button:hover {
+  transform: scale(1.12);
+}
+
+.review-stars-button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+.review-stars-input .fa-regular {
+  color: var(--color-neutral-300);
+}

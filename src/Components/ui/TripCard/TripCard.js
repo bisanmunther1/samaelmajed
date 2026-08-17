@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Card, { CardBody, CardMedia } from "../Card/Card";
+import StarRating from "../../Reviews/StarRating";
 import "./TripCard.css";
 
 export default function TripCard({
@@ -10,6 +11,8 @@ export default function TripCard({
   visitors,
   discountPercent,
   description,
+  averageRating = 0,
+  reviewsCount = 0,
   onSelect,
 }) {
   const [showInfo, setShowInfo] = useState(false);
@@ -48,6 +51,13 @@ export default function TripCard({
             <i className="fa-solid fa-person-walking-luggage" aria-hidden="true"></i>
           </span>
         </div>
+
+        {reviewsCount > 0 && (
+          <div className="trip-card-reviews">
+            <StarRating value={averageRating} size="sm" />
+            <span className="trip-card-reviews-count">({reviewsCount})</span>
+          </div>
+        )}
 
         {description && (
           <>

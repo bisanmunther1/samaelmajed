@@ -1,0 +1,128 @@
+.review-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.review-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.review-list-title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--color-neutral-900);
+}
+
+.review-list-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  color: var(--color-neutral-700);
+}
+
+.review-list-sort select {
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-neutral-300);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+  color: var(--color-neutral-900);
+  font-size: var(--font-size-sm);
+}
+
+.review-list-sort select:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.review-list-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.review-list-skeleton-row {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+
+.review-list-skeleton-lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  flex: 1;
+}
+
+.review-list-items {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.review-item {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-neutral-300);
+}
+
+.review-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.review-item-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.review-item-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.review-item-author {
+  font-weight: 600;
+  color: var(--color-neutral-900);
+}
+
+.review-item-date {
+  font-size: var(--font-size-xs);
+  color: var(--color-neutral-500);
+}
+
+.review-item-comment {
+  color: var(--color-neutral-700);
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.review-item-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.review-list-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+}
+
+.review-list-page-position {
+  font-size: var(--font-size-sm);
+  color: var(--color-neutral-500);
+}

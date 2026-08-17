@@ -32,6 +32,7 @@ urlpatterns = [
     path('profile/', include('profiles.urls')),
     path('statistics/', include('statistics_report.urls')),
     path('admin-api/', include('admin_api.urls')),
+    path('api/reviews/', include('reviews.urls')),
 
     path('token/',jwt_views.TokenObtainPairView.as_view(), 
           name ='token_obtain_pair'),

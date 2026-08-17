@@ -77,3 +77,14 @@
   font-size: var(--font-size-sm);
   color: var(--color-neutral-500);
 }
+
+.trip-card-reviews {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.trip-card-reviews-count {
+  font-size: var(--font-size-xs);
+  color: var(--color-neutral-500);
+}

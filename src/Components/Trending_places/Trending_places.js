@@ -69,6 +69,8 @@ export default function Trending_places() {
         price={e.price}
         rate={e.rate}
         visitors={e.num}
+        averageRating={e.average_rating}
+        reviewsCount={e.reviews_count}
         onSelect={openBooking}
       />
     ));

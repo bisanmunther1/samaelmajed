@@ -12,6 +12,7 @@ import Button from "../ui/Button/Button";
 import Input from "../ui/Input/Input";
 import Skeleton from "../ui/Skeleton/Skeleton";
 import ErrorState from "../ui/ErrorState/ErrorState";
+import ReviewsSection from "../Reviews/ReviewsSection";
 
 const STEPS = [
   { id: 1, label: "Transport" },
@@ -367,6 +368,10 @@ export default function Reserve_trip() {
               </div>
             </div>
           )}
+
+          {/* Step 1 doubles as the trip detail view — there is no separate
+              trip page — so the trip's reviews live here. */}
+          {step === 1 && <ReviewsSection targetType="trip" targetId={tripName} />}
 
           {step === 2 && (
             <div id="reserve_hotel_grid">
