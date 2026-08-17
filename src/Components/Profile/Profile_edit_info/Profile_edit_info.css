@@ -1,0 +1,43 @@
+
+#profile_edit_background
+{
+    width: 100%;
+    height: fit-content;
+    min-height: 100vh;
+    background-color: var(--color-bg);
+    display: flex;
+    justify-content: center;
+    padding: var(--space-6) var(--space-3);
+}
+
+#profile_edit_root{
+    background-color: var(--color-surface);
+    box-shadow: var(--shadow-md);
+    border-radius: var(--radius-xl);
+    width: 100%;
+    max-width: 560px;
+    height: fit-content;
+    padding: var(--space-6);
+
+}
+#profile_edit_root p:first-child{
+    text-align: center;
+    color: var(--color-secondary-dark);
+    font-weight: 700;
+    font-size: var(--font-size-2xl);
+    margin-top: 0;
+    margin-bottom: var(--space-5);
+
+}
+#profile_edit_form{
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+#profile_edit_skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-4);
+}

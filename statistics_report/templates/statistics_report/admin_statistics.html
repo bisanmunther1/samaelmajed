@@ -1,0 +1,278 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Statistics{% endblock %}
+
+{% block extrahead %}
+<link rel="stylesheet" href="{% static 'statistics_report/admin_stats.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="stat-page">
+
+  <div class="stat-page-header">
+    <h1>Statistics</h1>
+    <span class="stat-arabic">الإحصائيات</span>
+  </div>
+
+  <div class="stat-card stat-filter-bar">
+    <div class="stat-filter-field">
+      <label for="start_date">Start date</label>
+      <input type="date" id="start_date">
+    </div>
+    <div class="stat-filter-field">
+      <label for="end_date">End date</label>
+      <input type="date" id="end_date">
+    </div>
+    <div class="stat-filter-actions">
+      <button id="apply_filter" class="stat-btn stat-btn-secondary" type="button">Apply filter</button>
+      <a id="export_link" class="stat-btn stat-btn-primary" href="/statistics/export/">Export to Excel</a>
+    </div>
+  </div>
+
+  <div id="loading_message" class="stat-message">Loading statistics...</div>
+  <div id="error_message" class="stat-message" style="display: none;"></div>
+
+  <div id="stats_content" style="display: none;">
+
+    <div class="stat-metric-row">
+      <div class="stat-card stat-metric-card">
+        <div class="stat-metric-icon is-primary">&#128203;</div>
+        <div>
+          <div class="stat-metric-label">Total bookings</div>
+          <div class="stat-metric-value" id="total_bookings">0</div>
+        </div>
+      </div>
+      <div class="stat-card stat-metric-card">
+        <div class="stat-metric-icon is-secondary">&#128100;</div>
+        <div>
+          <div class="stat-metric-label">New users</div>
+          <div class="stat-metric-value" id="new_users">0</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-panel-row">
+      <div class="stat-card">
+        <h3 class="stat-panel-title">Bookings over time</h3>
+        <div class="stat-chart-wrap"><canvas id="bookings_over_time_chart"></canvas></div>
+      </div>
+      <div class="stat-card">
+        <h3 class="stat-panel-title">New users over time</h3>
+        <div class="stat-chart-wrap"><canvas id="new_users_over_time_chart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="stat-panel-row">
+      <div class="stat-card">
+        <h3 class="stat-panel-title">Most booked trips</h3>
+        <div class="stat-chart-wrap"><canvas id="most_booked_trips_chart"></canvas></div>
+        <table class="stat-table">
+          <thead><tr><th>Trip</th><th>Bookings</th></tr></thead>
+          <tbody id="most_booked_trips_body"></tbody>
+        </table>
+      </div>
+      <div class="stat-card">
+        <h3 class="stat-panel-title">Bookings by destination</h3>
+        <div class="stat-chart-wrap"><canvas id="bookings_by_destination_chart"></canvas></div>
+        <table class="stat-table">
+          <thead><tr><th>Destination</th><th>Bookings</th></tr></thead>
+          <tbody id="bookings_by_destination_body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="stat-panel-row">
+      <div class="stat-card">
+        <h3 class="stat-panel-title">Bookings by hotel</h3>
+        <table class="stat-table">
+          <thead><tr><th>Hotel</th><th>Bookings</th></tr></thead>
+          <tbody id="bookings_by_hotel_body"></tbody>
+        </table>
+      </div>
+      <div class="stat-card">
+        <h3 class="stat-panel-title">Bookings by transport method</h3>
+        <table class="stat-table">
+          <thead><tr><th>Transport method</th><th>Bookings</th></tr></thead>
+          <tbody id="bookings_by_transport_body"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+(function () {
+  var startInput = document.getElementById('start_date');
+  var endInput = document.getElementById('end_date');
+  var applyButton = document.getElementById('apply_filter');
+  var exportLink = document.getElementById('export_link');
+  var loadingMessage = document.getElementById('loading_message');
+  var errorMessage = document.getElementById('error_message');
+  var statsContent = document.getElementById('stats_content');
+
+  // Matches the design tokens in statistics_report/static/statistics_report/admin_stats.css
+  var CHART_COLORS = {
+    primary: '#14b8a6',
+    primaryLight: 'rgba(20, 184, 166, 0.15)',
+    secondary: '#1b6fa8',
+    secondaryLight: 'rgba(27, 111, 168, 0.15)',
+    neutral500: '#6b8399',
+    neutral100: '#eef5fa',
+    palette: ['#14b8a6', '#1b6fa8', '#1a9c56', '#d92d20', '#0e8074', '#124d78', '#6b8399', '#c7d9e6'],
+  };
+  Chart.defaults.font.family = "-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+  Chart.defaults.color = CHART_COLORS.neutral500;
+  Chart.defaults.borderColor = CHART_COLORS.neutral100;
+
+  var charts = {};
+
+  function upsertChart(canvasId, config) {
+    if (charts[canvasId]) {
+      charts[canvasId].data = config.data;
+      charts[canvasId].options = config.options;
+      charts[canvasId].config.type = config.type;
+      charts[canvasId].update();
+      return;
+    }
+    var ctx = document.getElementById(canvasId).getContext('2d');
+    charts[canvasId] = new Chart(ctx, config);
+  }
+
+  function renderCharts(data) {
+    var timeChartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+    };
+
+    upsertChart('bookings_over_time_chart', {
+      type: 'line',
+      data: {
+        labels: data.bookings_over_time.map(function (row) { return row.date; }),
+        datasets: [{
+          label: 'Bookings',
+          data: data.bookings_over_time.map(function (row) { return row.bookings_count; }),
+          borderColor: CHART_COLORS.primary,
+          backgroundColor: CHART_COLORS.primaryLight,
+          fill: true,
+          tension: 0.3,
+        }],
+      },
+      options: timeChartOptions,
+    });
+
+    upsertChart('new_users_over_time_chart', {
+      type: 'line',
+      data: {
+        labels: data.new_users_over_time.map(function (row) { return row.date; }),
+        datasets: [{
+          label: 'New users',
+          data: data.new_users_over_time.map(function (row) { return row.new_users_count; }),
+          borderColor: CHART_COLORS.secondary,
+          backgroundColor: CHART_COLORS.secondaryLight,
+          fill: true,
+          tension: 0.3,
+        }],
+      },
+      options: timeChartOptions,
+    });
+
+    upsertChart('most_booked_trips_chart', {
+      type: 'bar',
+      data: {
+        labels: data.most_booked_trips.map(function (row) { return row.trip_name || '(none)'; }),
+        datasets: [{
+          label: 'Bookings',
+          data: data.most_booked_trips.map(function (row) { return row.bookings_count; }),
+          backgroundColor: CHART_COLORS.primary,
+          borderRadius: 6,
+        }],
+      },
+      options: timeChartOptions,
+    });
+
+    upsertChart('bookings_by_destination_chart', {
+      type: 'pie',
+      data: {
+        labels: data.bookings_by_destination.map(function (row) { return row.place || '(none)'; }),
+        datasets: [{
+          data: data.bookings_by_destination.map(function (row) { return row.bookings_count; }),
+          backgroundColor: CHART_COLORS.palette,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: true, position: 'right' } },
+      },
+    });
+  }
+
+  function buildQueryString() {
+    var params = [];
+    if (startInput.value) params.push('start_date=' + encodeURIComponent(startInput.value));
+    if (endInput.value) params.push('end_date=' + encodeURIComponent(endInput.value));
+    return params.length ? '?' + params.join('&') : '';
+  }
+
+  function fillTable(bodyId, rows, keyField) {
+    var body = document.getElementById(bodyId);
+    body.innerHTML = '';
+    if (!rows.length) {
+      body.innerHTML = '<tr><td colspan="2">No data</td></tr>';
+      return;
+    }
+    rows.forEach(function (row) {
+      var tr = document.createElement('tr');
+      var label = row[keyField] === null || row[keyField] === undefined || row[keyField] === '' ? '(none)' : row[keyField];
+      tr.innerHTML = '<td></td><td></td>';
+      tr.children[0].textContent = label;
+      tr.children[1].textContent = row.bookings_count;
+      body.appendChild(tr);
+    });
+  }
+
+  function loadStatistics() {
+    loadingMessage.style.display = 'block';
+    errorMessage.style.display = 'none';
+    statsContent.style.display = 'none';
+
+    var query = buildQueryString();
+    exportLink.setAttribute('href', '/statistics/export/' + query);
+
+    fetch('/statistics/' + query, { credentials: 'same-origin' })
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error('Failed to load statistics (status ' + response.status + ')');
+        }
+        return response.json();
+      })
+      .then(function (data) {
+        document.getElementById('total_bookings').textContent = data.total_bookings;
+        document.getElementById('new_users').textContent = data.new_users;
+        fillTable('most_booked_trips_body', data.most_booked_trips, 'trip_name');
+        fillTable('bookings_by_destination_body', data.bookings_by_destination, 'place');
+        fillTable('bookings_by_hotel_body', data.bookings_by_hotel, 'hotel_name');
+        fillTable('bookings_by_transport_body', data.bookings_by_transport, 'transport_method');
+        renderCharts(data);
+
+        loadingMessage.style.display = 'none';
+        statsContent.style.display = 'block';
+      })
+      .catch(function (error) {
+        loadingMessage.style.display = 'none';
+        errorMessage.style.display = 'block';
+        errorMessage.textContent = error.message;
+      });
+  }
+
+  applyButton.addEventListener('click', loadStatistics);
+  loadStatistics();
+})();
+</script>
+{% endblock %}

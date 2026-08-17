@@ -1,0 +1,229 @@
+/* Shared "stat tile" visual system for the Django admin: the Statistics
+   page (FR-37) and the admin dashboard index widgets. Mirrors the React
+   app's design tokens (src/index.css) so the admin reads as part of the
+   same product, not a bolted-on page. */
+:root {
+  --stat-bg: #eaf4fb;
+  --stat-secondary: #1b6fa8;
+  --stat-secondary-dark: #124d78;
+  --stat-primary: #14b8a6;
+  --stat-primary-dark: #0e8074;
+  --stat-primary-light: #d3f5f0;
+  --stat-neutral-900: #10233a;
+  --stat-neutral-700: #3b5166;
+  --stat-neutral-500: #6b8399;
+  --stat-neutral-300: #c7d9e6;
+  --stat-neutral-100: #eef5fa;
+  --stat-error: #d92d20;
+  --stat-surface: #ffffff;
+  --stat-radius-sm: 8px;
+  --stat-radius-md: 12px;
+  --stat-radius-lg: 16px;
+  --stat-shadow-sm: 0 2px 8px rgba(16, 35, 58, 0.08);
+  --stat-shadow-md: 0 10px 30px rgba(16, 35, 58, 0.14);
+  --stat-space-2: 8px;
+  --stat-space-3: 12px;
+  --stat-space-4: 16px;
+  --stat-space-5: 24px;
+  --stat-space-6: 32px;
+}
+
+#content-main { background-color: var(--stat-bg); }
+
+.stat-page {
+  background-color: var(--stat-bg);
+  padding: var(--stat-space-6) var(--stat-space-4);
+  margin: calc(var(--stat-space-6) * -1) calc(var(--stat-space-4) * -1);
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--stat-neutral-900);
+}
+
+.stat-page-header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--stat-space-3);
+  margin-bottom: var(--stat-space-5);
+}
+.stat-page-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--stat-neutral-900);
+  margin: 0;
+}
+.stat-page-header .stat-arabic {
+  font-size: 18px;
+  color: var(--stat-neutral-500);
+  font-weight: 400;
+}
+
+.stat-card {
+  background-color: var(--stat-surface);
+  border-radius: var(--stat-radius-lg);
+  box-shadow: var(--stat-shadow-sm);
+  padding: var(--stat-space-5);
+}
+
+.stat-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--stat-space-4);
+  margin-bottom: var(--stat-space-5);
+}
+.stat-filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--stat-space-2);
+}
+.stat-filter-field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--stat-neutral-700);
+}
+.stat-filter-field input[type="date"] {
+  border: 1px solid var(--stat-neutral-300);
+  border-radius: var(--stat-radius-sm);
+  padding: var(--stat-space-2) var(--stat-space-3);
+  font-size: 14px;
+  color: var(--stat-neutral-900);
+  background-color: var(--stat-surface);
+}
+.stat-filter-field input[type="date"]:focus {
+  outline: none;
+  border-color: var(--stat-primary);
+  box-shadow: 0 0 0 3px var(--stat-primary-light);
+}
+.stat-filter-actions {
+  display: flex;
+  gap: var(--stat-space-3);
+}
+
+.stat-btn {
+  border: none;
+  border-radius: var(--stat-radius-sm);
+  padding: var(--stat-space-3) var(--stat-space-5);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: background-color 150ms ease;
+}
+.stat-btn-primary {
+  background-color: var(--stat-primary);
+  color: #fff;
+}
+.stat-btn-primary:hover { background-color: var(--stat-primary-dark); color: #fff; }
+.stat-btn-secondary {
+  background-color: var(--stat-secondary);
+  color: #fff;
+}
+.stat-btn-secondary:hover { background-color: var(--stat-secondary-dark); color: #fff; }
+
+.stat-message {
+  padding: var(--stat-space-5);
+  border-radius: var(--stat-radius-lg);
+  font-size: 15px;
+}
+#loading_message {
+  background-color: var(--stat-neutral-100);
+  color: var(--stat-neutral-700);
+}
+#error_message {
+  background-color: #fdecea;
+  color: var(--stat-error);
+  border: 1px solid #f6c8c3;
+}
+
+.stat-metric-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--stat-space-5);
+  margin-bottom: var(--stat-space-5);
+}
+.stat-metric-card {
+  display: flex;
+  align-items: center;
+  gap: var(--stat-space-4);
+}
+.stat-metric-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--stat-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: #fff;
+  flex-shrink: 0;
+}
+.stat-metric-icon.is-primary { background-color: var(--stat-primary); }
+.stat-metric-icon.is-secondary { background-color: var(--stat-secondary); }
+.stat-metric-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--stat-neutral-500);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.stat-metric-value {
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--stat-neutral-900);
+  line-height: 1.2;
+}
+
+.stat-panel-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--stat-space-5);
+  margin-bottom: var(--stat-space-5);
+}
+.stat-panel-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--stat-neutral-900);
+  margin: 0 0 var(--stat-space-4) 0;
+}
+.stat-chart-wrap {
+  position: relative;
+  height: 260px;
+  margin-bottom: var(--stat-space-4);
+}
+
+.stat-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.stat-table th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--stat-neutral-500);
+  padding: var(--stat-space-2) var(--stat-space-3);
+  border-bottom: 2px solid var(--stat-neutral-100);
+}
+.stat-table td {
+  padding: var(--stat-space-3);
+  border-bottom: 1px solid var(--stat-neutral-100);
+  color: var(--stat-neutral-900);
+}
+.stat-table tr:last-child td { border-bottom: none; }
+.stat-table tbody tr:hover { background-color: var(--stat-neutral-100); }
+
+.stat-dashboard-tiles {
+  margin-bottom: var(--stat-space-4);
+}
+.stat-dashboard-action {
+  margin-bottom: var(--stat-space-5);
+}
+
+@media (max-width: 600px) {
+  .stat-filter-bar { flex-direction: column; align-items: stretch; }
+  .stat-filter-actions { justify-content: stretch; }
+  .stat-filter-actions .stat-btn { flex: 1; justify-content: center; }
+}

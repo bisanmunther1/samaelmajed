@@ -1,0 +1,58 @@
+
+ 
+#discount_root_element{
+     display: flex;
+    justify-content: space-around;
+     flex-wrap:wrap;
+    height: fit-content;
+    transition-duration: 1500ms;
+	overflow:hidden;
+    background-image: url('1.jpg');
+    background-position: center;
+    background-size: cover;
+	 
+}
+#discount_text_section{
+    height: 600px;
+
+    width: 35%;
+    font-size: 50px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    margin-top: var(--space-8);
+    color: white;
+    text-shadow: 1px 1px 15px white;
+}
+#discount_gallery {
+     width: 60%;
+    height: fit-content;
+    transition-duration: 1500ms;
+	 display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    border-radius: var(--radius-xl);
+    margin-top: var(--space-8);
+
+}
+
+#discount_skeleton_row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    width: 100%;
+    gap: var(--space-3);
+}
+
+@keyframes appear_letter {
+    
+    from {
+        opacity: 0;
+   
+    }
+    to{
+        opacity: 1;
+ 
+}
+}

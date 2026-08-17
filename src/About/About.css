@@ -1,0 +1,198 @@
+
+#about_root{
+	background-color: var(--color-bg);
+}
+/*بداية تنسيق أول جزء */
+#firstAboutSection{
+   width: 100%;
+   height: 80vh;
+   background-image: url("./titleAbout.png");
+   background-position:center;
+   background-size: cover;
+   color: rgba(255, 255, 255,1);
+   text-align: center;
+   border-bottom-left-radius: var(--radius-xl);
+   border-bottom-right-radius: var(--radius-xl);
+}
+
+#join_us_word{
+font-size: 80px;
+}
+#text{
+    padding-top: var(--space-8);
+}
+#text h1{
+     font-size: 120px;
+	 text-shadow:0px 0px 10px white;
+	 animation-duration:2s;
+	 animation-name:show_up_about;
+}
+#text p{
+    font-size: 40px;
+	 animation-duration:3s;
+	 animation-name:show_up_about;
+	 color:rgb(255, 255, 255, 0.7);
+}
+
+/*نهاية تنسيق أول جزء*/
+/* بداية تنسيق فقرة about*/
+#AboutUsSection{
+    margin-top: var(--space-8);
+    margin-bottom: var(--space-2);
+    text-align: center;
+    color: var(--color-neutral-900);
+}
+#welcomVisitor p{
+	line-height:30px;
+}
+.titleMS{
+    color: var(--color-neutral-900);
+    font-size: 40px;
+    text-align: center;
+}
+.text_edit{
+font-size: 25px;
+    width: 60%;
+    text-align: start;
+    margin: auto;
+    line-height: 40px;
+	}
+/*نهاية تنسيق فقرة about*/
+/*بداية تنسيق فقرة welcome*/
+#welcomVisitor{
+    background-color: var(--color-surface);
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+    padding: var(--space-5) var(--space-4);
+    border-radius: var(--radius-lg);
+    color: var(--color-neutral-900);
+    max-width: 900px;
+    margin: 0 auto;
+}
+#welcomVisitor i {
+	padding-top: var(--space-4);
+}
+#welcomVisitor p{
+    font-size: 20px;
+}
+
+#home_link_from_about i{
+    text-decoration:none;
+	font-size:30px;
+	color: var(--color-primary);
+}
+
+#home_link_from_about i:hover{
+    color: var(--color-primary-dark);
+}
+
+/*نهاية تنسيق فقرة welcome*/
+
+/*بداية تنسيق الcards*/
+.cards{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-5);
+    margin-left: 10%;
+    margin-right: 10%;
+    margin-top: var(--space-5);
+    margin-bottom: var(--space-5);
+}
+.cards div{
+	border-radius: var(--radius-lg);
+	margin-bottom: var(--space-3);
+}
+.card{
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+    width: 280px;
+    max-width: 100%;
+    padding: var(--space-5) var(--space-4);
+    background-color: var(--color-surface);
+    color: var(--color-neutral-900);
+	cursor:pointer;
+    transition: transform 200ms ease, box-shadow 200ms ease;
+}
+.card:hover{
+ transform: translateY(-4px);
+ box-shadow: var(--shadow-md);
+}
+
+.card i:first-child{
+    font-size: 30px;
+    margin-top: var(--space-2);
+    color: var(--color-primary);
+}
+
+/*نهاية تنسيق الcards*/
+/*بداية تنسيق الجزء الأخير*/
+#lastAboutSection{
+    width: 100%;
+   height: 80vh;
+   background-image: url("./lastAbout.jpg");
+   background-position: center;
+   background-size: cover;
+   display: flex;
+   align-items: center;
+   justify-content: space-around;
+   gap: 5%;
+   border-radius: var(--radius-xl);
+}
+#NoteAboutSS{
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 100;
+    letter-spacing: 10;
+    line-height: 25px;
+    margin-left: 10%;
+}
+.comment{
+    display: flex;
+    flex-wrap: wrap;
+    border:  solid rgba(255,255,255,0.2);
+    color: white;
+	border-radius: var(--radius-lg);
+    font-size: large;
+    letter-spacing: 1px;
+    backdrop-filter: blur(15px);
+    background: rgba(255,255,255,0.2);
+    padding: var(--space-3);
+}
+
+.userComment{
+    font-size: 30px;
+    direction: ltr;
+    color: var(--color-neutral-900);
+    padding-left: var(--space-2);
+}
+#userName{
+    font-size: large;
+    color: var(--color-neutral-900);
+    padding-left: var(--space-1);
+}
+#newHotel,#newDest,#newWhy{
+    margin-left: 7%;
+    margin-right: 2%;
+    gap: 5%;
+    display:none;
+    margin-bottom: var(--space-3);
+}
+.newText{
+    font-size: large;
+    font-weight: 100;
+    width: 45%;
+}
+
+
+
+@keyframes show_up_about {
+    from {
+     opacity: 0;
+     transform: translateY(100px);
+    }
+    to{
+  opacity: 1;
+  transform: translateY(0px);
+    }
+}

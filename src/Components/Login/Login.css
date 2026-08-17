@@ -1,0 +1,56 @@
+.login {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: url('1.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    padding: var(--space-4);
+}
+
+.wrapper {
+    width: 100%;
+    max-width: 340px;
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, .2);
+    box-shadow: var(--shadow-md);
+    backdrop-filter: blur(30px);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5) var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.wrapper h1 {
+    font-size: var(--font-size-2xl);
+    text-align: center;
+    color: var(--color-neutral-900);
+}
+
+.wrapper form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.Link-to-Register {
+    font-size: var(--font-size-sm);
+    text-align: center;
+    color: var(--color-neutral-900);
+}
+
+.links {
+    text-decoration: none;
+    color: var(--color-primary);
+    font-weight: 600;
+    margin-left: var(--space-1);
+}
+
+.error {
+    font-size: var(--font-size-sm);
+    color: var(--color-error);
+    text-align: center;
+}

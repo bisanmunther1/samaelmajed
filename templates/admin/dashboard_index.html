@@ -1,0 +1,40 @@
+{% extends "admin/index.html" %}
+{% load static dashboard_stats %}
+
+{% block extrahead %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'statistics_report/admin_stats.css' %}">
+{% endblock %}
+
+{% block content %}
+{% get_dashboard_stats as dash %}
+<div class="col-12 stat-dashboard-tiles">
+    <div class="stat-metric-row">
+        <div class="stat-card stat-metric-card">
+            <div class="stat-metric-icon is-primary">&#128203;</div>
+            <div>
+                <div class="stat-metric-label">Bookings this week</div>
+                <div class="stat-metric-value">{{ dash.bookings_this_week }}</div>
+            </div>
+        </div>
+        <div class="stat-card stat-metric-card">
+            <div class="stat-metric-icon is-primary">&#128197;</div>
+            <div>
+                <div class="stat-metric-label">Bookings this month</div>
+                <div class="stat-metric-value">{{ dash.bookings_this_month }}</div>
+            </div>
+        </div>
+        <div class="stat-card stat-metric-card">
+            <div class="stat-metric-icon is-secondary">&#128100;</div>
+            <div>
+                <div class="stat-metric-label">Registered users</div>
+                <div class="stat-metric-value">{{ dash.total_users }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-12 stat-dashboard-action">
+    <a href="{% url 'admin-statistics-page' %}" class="stat-btn stat-btn-primary">View full statistics &rarr;</a>
+</div>
+{{ block.super }}
+{% endblock %}

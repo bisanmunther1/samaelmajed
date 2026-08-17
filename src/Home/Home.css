@@ -1,0 +1,90 @@
+#home_root{
+   width: 100%;
+ 
+   height:fit-content;
+ 
+   position: initial;
+
+ 
+}
+ 
+/* img_and_title_container */
+#img_and_title_container{
+    width: 100%;
+     
+    /* position: relative; */
+    transition-duration: 1000ms;
+    overflow: hidden;
+    position: absolute; 
+    display: flex;
+    
+     /* background-color: red; */
+    width: fit-content;
+ 
+    height: fit-content;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+     
+    top: 10%;
+     left: 35%;
+   text-shadow: 0px 0px 15px gray;
+    
+   
+
+
+}
+ 
+ .home_img_site{
+
+    width: 50%;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-surface);
+    font-weight: 700;
+    font-size: var(--font-size-2xl, 28px);
+    background-color: rgba(0, 0, 0, 0.2);
+
+    border-radius: var(--radius-xl);
+    animation-name: show_up;
+    animation-duration: 1.5s;
+    animation-iteration-count: 1;
+
+ }
+ 
+ 
+video {
+
+   
+    width: 100%;
+    /* position:absolute; */
+	object-fit: cover;
+    height: 110%;
+	margin:0px;
+	
+}
+ .home_title_site{
+    font-size: 50px;
+    color: gray;
+    /* z-index: 100; */
+    animation-name: show_up;
+    animation-duration: 2s;
+ 
+    animation-iteration-count: 1;
+ }
+  
+ 
+
+ 
+@keyframes show_up {
+    from {
+     opacity: 0;
+     transform: translateY(100px);
+    }
+    to{
+  opacity: 1;
+  transform: translateY(0);
+    }
+}

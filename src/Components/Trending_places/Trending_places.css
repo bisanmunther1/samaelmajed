@@ -1,0 +1,148 @@
+
+
+#trending_root_element{
+
+    display: flex;
+    justify-content: space-between;
+    flex-wrap:wrap;
+    height: fit-content;
+    transition-duration: 1500ms;
+   background-image:url('./trending.jpg');
+   background-position: center;
+   background-size: cover;
+   overflow:hidden;
+   margin-top: -5px;
+ 
+}
+
+#container_for_button_and_gallery{
+       width: 55%;
+       height: fit-content;
+     	margin-top: var(--space-5);
+     	margin-bottom: var(--space-5);
+       transition-duration: 1500ms;
+	   border-radius: var(--radius-xl);
+       backdrop-filter:blur(5px);
+
+}
+
+#trending_gallery {
+
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    border-radius: var(--radius-xl);
+    width: 100%;
+    height: fit-content;
+	animation-duration:1000ms;
+}
+#trending_button_section {
+
+     width: 100%;
+     display: flex;
+	 border-radius: var(--radius-lg);
+     height: fit-content;
+     justify-content: space-evenly;
+     margin-top: 30px;
+     margin-bottom: 2px;
+	 background-color :#ffffff6b;
+	/* background: linear-gradient(50deg, #133c59, #4a7a97, #ffd98f, #ffb60c);*/
+	 backdrop-filter:blur(5px);
+
+ 	 
+   
+	 
+
+}
+ 
+#trending_text {
+
+  animation-duration:1500ms;
+   font-size:60px;
+}
+ 
+ 
+
+#beach_trending,
+#city_trending,
+#nature_trending {
+
+    font-size: 20px;
+     padding: var(--space-1) var(--space-3);
+	margin: var(--space-1) 0px;
+    cursor: pointer;
+    transition-duration: 600ms;
+    border-bottom: 3px solid transparent;
+	font-weight:600;
+}
+
+.trending_type_active {
+
+    border-bottom-color: var(--color-primary);
+}
+
+#trending_skeleton_row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    width: 100%;
+    gap: var(--space-3);
+}
+
+ 
+#beach_trending:hover,
+#city_trending:hover,
+#nature_trending:hover {
+
+    color: white;
+	 text-shadow: 0px 0px 10px white;
+   
+ 
+}
+
+ 
+#trending_some_text{
+
+ color:white;
+ font-size:50px;
+ width:38%;
+ font-style:italic;
+  margin-left:5px;
+  text-align:center;
+  display:flex;
+  justify-content:center;
+  flex-direction:column;
+  text-shadow: 2px 2px 10px white;
+    
+} 
+
+ 
+#trending_text_second_line,
+#trending_text_first_line{
+	  animation-duration:1500ms;
+	   
+	  	 
+}
+
+@keyframes first_line {
+    from {
+		opacity:0;
+		transform:translateY( 20px);
+	}
+	to{
+    	opacity:1;
+	}
+}
+
+
+@keyframes second_line {
+    from {
+		opacity:0;
+		transform:translateY(-20px);
+	}
+	to{
+    	opacity:1;
+	}
+}
+ 
+ 

@@ -1,0 +1,187 @@
+
+/* --------------------------------------------- */
+/* main footer style  , the footer is divided into 2 parts */
+
+
+#Footer_root_element {
+
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  width: 100%;
+
+  height: fit-content;
+  align-items: center;
+  background-size: cover;
+  font-size: var(--font-size-sm);
+  background-image:linear-gradient(50deg ,  #133c59   ,#4a7a97     ,#3e97ca  ,  #93d7ec  );
+
+}
+
+#first_part_of_footer {
+  width: 100%;
+  min-width: fit-content;
+  display: flex;
+  justify-content: space-evenly;
+  flex-wrap: wrap;
+}
+
+#second_part_of_footer {
+
+  font-weight: 400;
+  font-size: var(--font-size-lg);
+  flex-wrap: wrap;
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  min-width: fit-content;
+  color: white;
+  text-shadow:0px 0px 3px white;
+
+}
+
+/* --------------------------------------------- */
+/* general style for all sections in the first part of the footer: */
+#footer_section1,
+#footer_section2,
+#footer_section3,
+#footer_section4
+ {
+
+  backdrop-filter: blur(15px);
+  margin-top: var(--space-3);
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  color: white;
+}
+
+/* --------------------------------------------- */
+/*  style the first section ' section 1 ' that has the name of website and some paragraph : */
+#footer_section1{
+
+  width: fit-content;
+  max-width: 320px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  flex-direction: column;
+  height: fit-content;
+  align-items: center;
+  color: white;
+
+}
+#footer_site-photo{
+  display: flex;
+  justify-content: center;
+  width: 70%;
+  height: 55px;
+  margin-top: var(--space-3);
+  align-items: center;
+  color: white;
+  font-weight: 700;
+  text-decoration: none;
+  background-color: #4a7a97;
+  border-radius: var(--radius-md);
+  z-index: 55;
+
+}
+
+#descFooterSection1 {
+  width: 100%;
+  max-width: 240px;
+  text-align: center;
+  margin-top: var(--space-3);
+  color:  white;
+}
+
+/* --------------------------------------------- */
+/* links of section 2 styling :*/
+
+#home_link_footer,
+#about_link_footer {
+	display:block;
+	text-decoration:none;
+  margin-top: var(--space-5);
+  width: fit-content;
+  border-bottom: white solid 1px;
+  cursor: pointer;
+  color: white;
+}
+
+#home_link_footer:hover,
+#about_link_footer:hover {
+  color: cadetblue;
+  border-bottom: cadetblue solid 1px;
+}
+
+/* --------------------------------------------- */
+/*  icons styling : for all sections : */
+
+#footer_section2 i {
+
+  padding-right: var(--space-2);
+
+}
+
+#footer_section4 i {
+
+  font-size: var(--font-size-2xl);
+  padding: var(--space-2);
+}
+
+#footer_section4 i:hover {
+
+  color: rgb(136, 136, 136);
+
+}
+
+/* --------------------------------------------- */
+
+/* section 3 styling : */
+
+#footer_section3 a,
+#footer_section3 div {
+  padding-top: var(--space-5);
+  cursor: default;
+  color: white;
+  display: block;
+  text-decoration: none;
+}
+
+#footer_section3 i {
+  padding-right: var(--space-2);
+
+}
+
+#footer_section3 div:hover,
+#footer_section3 #footer_googleMail:hover {
+
+  color: #4a7a97;
+}
+/*-------- section 4  style for icons*/
+#footer_section4 .fa-facebook ,
+#footer_section4 .fa-linkedin{
+text-shadow:0px 0px 10px blue;
+}
+
+#footer_section4 .fa-instagram {
+text-shadow:0px 0px 10px #b6149c;
+}
+ #footer_section4 .fa-x-twitter{
+ text-shadow:0px 0px 10px black;
+ }
+
+@media (max-width: 640px) {
+  #first_part_of_footer {
+    justify-content: center;
+  }
+
+  #footer_section1,
+  #footer_section2,
+  #footer_section3,
+  #footer_section4 {
+    width: 100%;
+    max-width: 340px;
+  }
+}

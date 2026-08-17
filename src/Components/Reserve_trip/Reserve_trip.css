@@ -1,0 +1,428 @@
+
+#reserve_skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-2) 0;
+}
+
+#reserve_lightbox {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1100;
+    cursor: zoom-out;
+}
+
+#reserve_lightbox_image {
+    width: 70%;
+    height: 60%;
+    max-width: 900px;
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    border-radius: var(--radius-lg);
+}
+
+#reserve_root {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+/* ---- step indicator ---- */
+#reserve_steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--color-neutral-100);
+}
+
+.reserve_step {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: var(--space-1);
+}
+
+.reserve_step_badge {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-pill);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    background-color: var(--color-neutral-100);
+    color: var(--color-neutral-700);
+    border: 2px solid transparent;
+    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.reserve_step_label {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--color-neutral-500);
+}
+
+.reserve_step.is_active .reserve_step_badge {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary-dark);
+    border-color: var(--color-primary);
+}
+.reserve_step.is_active .reserve_step_label {
+    color: var(--color-neutral-900);
+}
+.reserve_step.is_done .reserve_step_badge {
+    background-color: var(--color-primary);
+    color: var(--color-surface);
+}
+.reserve_step.is_done .reserve_step_label {
+    color: var(--color-neutral-900);
+}
+
+.reserve_step_connector {
+    width: 40px;
+    height: 2px;
+    background-color: var(--color-neutral-300);
+    margin: 0 var(--space-2);
+}
+.reserve_step_connector.is_done {
+    background-color: var(--color-primary);
+}
+
+/* ---- section headers (labels, not buttons) ---- */
+.reserve_section_header {
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-neutral-700);
+    padding-bottom: var(--space-2);
+    margin-bottom: var(--space-3);
+    border-bottom: 1px solid var(--color-neutral-100);
+}
+
+.reserve_empty_hint {
+    font-size: var(--font-size-sm);
+    color: var(--color-neutral-500);
+    padding: var(--space-4);
+    text-align: center;
+}
+
+/* ---- step 1: transport ---- */
+#reserve_transport_grid {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr;
+    gap: var(--space-5);
+    align-items: start;
+}
+
+#photos_reserve_section {
+    height: 260px;
+    display: flex;
+    flex-direction: row-reverse;
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    gap: 2px;
+}
+#container_3_photos {
+    height: 100%;
+    width: 70%;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    gap: 2px;
+    margin: 0px;
+}
+#photo1 {
+    margin: 0px;
+    background-position: center;
+    background-size: cover;
+    height: 100%;
+    width: 30%;
+    background-repeat: no-repeat;
+}
+#top_2_photos {
+    width: 100%;
+    height: 60%;
+    margin: 0px;
+    display: flex;
+    justify-content: center;
+    gap: 2px;
+}
+#top1, #top2 {
+    margin: 0px;
+    height: 100%;
+    width: 50%;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+#lower_photo {
+    width: 100%;
+    height: 40%;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+#photo1:hover, #top2:hover, #top1:hover, #lower_photo:hover {
+    transform: perspective(2000px) translate3d(0, 0, 60px);
+    transition-duration: 0.3s;
+}
+
+.reserve_option_tabs {
+    display: flex;
+    gap: var(--space-1);
+    background-color: var(--color-neutral-100);
+    border-radius: var(--radius-md);
+    padding: var(--space-1);
+    margin-bottom: var(--space-3);
+}
+.reserve_option_tab {
+    flex: 1;
+    text-align: center;
+    padding: var(--space-2) 0;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: none;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--color-neutral-700);
+    cursor: pointer;
+}
+.reserve_option_tab.is_active {
+    background-color: var(--color-surface);
+    color: var(--color-secondary-dark);
+    box-shadow: var(--shadow-sm);
+}
+
+#starting_points_options_box {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    max-height: 190px;
+    overflow-y: auto;
+    padding-right: var(--space-1);
+}
+
+.reserve_transport_option {
+    font-size: var(--font-size-sm);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-3);
+    background-color: var(--color-surface);
+    border: 2px solid var(--color-neutral-300);
+    transition: border-color 150ms ease, background-color 150ms ease;
+}
+.reserve_transport_option:hover {
+    border-color: var(--color-secondary-light);
+}
+.reserve_transport_option label {
+    cursor: pointer;
+}
+.reserve_transport_option input {
+    height: 22px;
+    width: 22px;
+    accent-color: var(--color-primary);
+    cursor: pointer;
+    flex: none;
+}
+
+.div_label {
+    font-weight: 600;
+}
+.div_label2 {
+    font-size: var(--font-size-xs);
+    color: var(--color-neutral-700);
+}
+
+.reserve_option_selected {
+    background-color: var(--color-primary-light) !important;
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 0 1px var(--color-primary) !important;
+}
+
+#no_access_container {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--space-3);
+    padding: var(--space-3);
+    border-radius: var(--radius-md);
+    border: 2px dashed var(--color-neutral-300);
+    background-color: var(--color-surface);
+    transition: border-color 150ms ease, background-color 150ms ease;
+}
+#no_access_container label {
+    cursor: pointer;
+}
+#no_access_container input {
+    width: 22px;
+    height: 22px;
+    accent-color: var(--color-primary);
+    cursor: pointer;
+    flex: none;
+}
+
+/* ---- step 2: hotel ---- */
+#reserve_hotel_grid {
+    display: grid;
+    grid-template-columns: 0.9fr 1.15fr;
+    gap: var(--space-5);
+    align-items: start;
+}
+
+#hotel_view {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+#hotel_options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    max-height: 260px;
+    overflow-y: auto;
+    padding-right: var(--space-1);
+}
+
+.hotel_reservation_date {
+    width: 100%;
+    margin-top: var(--space-3);
+}
+
+.reserve_hotel_option,
+#no_hotel_selected {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: var(--font-size-sm);
+    padding: var(--space-3);
+    border-radius: var(--radius-md);
+    border: 2px solid var(--color-neutral-300);
+    background-color: var(--color-surface);
+    transition: border-color 150ms ease, background-color 150ms ease;
+}
+.reserve_hotel_option:hover,
+#no_hotel_selected:hover {
+    border-color: var(--color-secondary-light);
+}
+.reserve_hotel_option input,
+#no_hotel_selected input {
+    width: 22px;
+    height: 22px;
+    accent-color: var(--color-primary);
+    flex: none;
+}
+
+/* ---- step 3: payment ---- */
+#reserve_payment_grid {
+    max-width: 460px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+#reserve_summary_card {
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    background-color: var(--color-neutral-100);
+}
+
+#reserve_summary_line {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--color-neutral-900);
+    margin-bottom: var(--space-3);
+}
+
+#reserve_summary_rows {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    font-size: var(--font-size-sm);
+}
+.reserve_summary_row {
+    display: flex;
+    justify-content: space-between;
+    color: var(--color-neutral-700);
+}
+.reserve_summary_row b {
+    color: var(--color-neutral-900);
+}
+
+#reserve_summary_total {
+    display: flex;
+    justify-content: space-between;
+    margin-top: var(--space-3);
+    padding-top: var(--space-3);
+    border-top: 1px dashed var(--color-neutral-300);
+    font-weight: 700;
+    font-size: var(--font-size-lg);
+    color: var(--color-secondary-dark);
+}
+
+#reserve_payment_actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+/* ---- footer nav ---- */
+#reserve_footer_nav {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+#reserve_footer_total {
+    font-size: var(--font-size-sm);
+    color: var(--color-neutral-700);
+}
+#reserve_footer_total b {
+    font-size: var(--font-size-lg);
+    color: var(--color-neutral-900);
+}
+#reserve_footer_spacer {
+    display: inline-block;
+    width: 64px;
+}
+
+@media (max-width: 720px) {
+  #reserve_transport_grid,
+  #reserve_hotel_grid {
+    grid-template-columns: 1fr;
+  }
+  #photos_reserve_section {
+    height: 200px;
+  }
+  .reserve_step_label {
+    display: none;
+  }
+  .reserve_step_connector {
+    width: 20px;
+  }
+  #reserve_lightbox_image {
+    width: 92%;
+    height: 50%;
+  }
+}
