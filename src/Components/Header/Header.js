@@ -70,7 +70,7 @@ export default function Header() {
     <header className="Header_Header">
       <div className="Header_bar">
         <div className="Header_Home-About">
-          <Link to={"/"} className="Header_site-image" title="Home page" aria-label="Home page" onClick={closeMenu}>سما المجد</Link>
+          <Link to={"/"} className="Header_site-image" title="Home page" aria-label="Home page" onClick={closeMenu}>Sama al Majd</Link>
           <nav className="Header_desktop-nav" aria-label="Primary">
             <Link to={"/"} className="Header_Button-Home">
               Home

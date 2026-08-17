@@ -16,7 +16,7 @@ export default function Footer() {
           
        <div id="footer_section1">
           
-         <Link to={"/"} id="footer_site-photo" title="Home page">سما المجد</Link>
+         <Link to={"/"} id="footer_site-photo" title="Home page">Sama al Majd</Link>
 
           <div id="descFooterSection1">
             travel and discover the world with our website.
@@ -53,7 +53,7 @@ export default function Footer() {
               id="footer_googleMail"
               href="mailto:WhereToGo@gmail.com">
               <i className="fa-brands fa-google"></i>
-              سما المجد.Work@gmail.com
+              Sama al Majd.Work@gmail.com
             </a>
 
         </div>{/*end of section 3 , connect us section*/}
@@ -101,7 +101,7 @@ export default function Footer() {
         </div> {/*end of the first part of the photer , the footer itself */}
 
         <div id="second_part_of_footer">
-           سما المجد	 2024 &#169; all rights reserved
+           Sama al Majd	 2024 &#169; all rights reserved
         </div>
       
       </div>

@@ -181,32 +181,43 @@ class StatisticsDataTests(StatisticsTestBase):
         self.assertEqual(
             workbook.sheetnames,
             [
-                'Summary', 'Most Booked Trips', 'Bookings Over Time',
-                'Bookings By Destination', 'Bookings By Hotel',
-                'Bookings By Transport', 'New Users Over Time',
+                'Summary', 'Bookings Over Time', 'New Users Over Time',
+                'Most Booked Trips', 'Bookings By Destination',
+                'Bookings By Hotel', 'Bookings By Transport Method',
             ],
         )
         summary = workbook['Summary']
-        self.assertEqual(summary['A4'].value, 'Total bookings')
-        self.assertEqual(summary['B4'].value, 4)
+        # Row 1 is the brand title banner, row 2 is the header row.
+        self.assertEqual(summary['A5'].value, 'Total bookings')
+        self.assertEqual(summary['B5'].value, 4)
 
     def test_export_sheets_have_expected_column_headers(self):
         response = self.client.get('/statistics/export/')
         workbook = load_workbook(io.BytesIO(response.content))
 
         expected_headers = {
-            'Summary': ['Metric', 'Value'],
-            'Most Booked Trips': ['Trip Name', 'Bookings Count'],
-            'Bookings Over Time': ['Date', 'Bookings Count'],
-            'Bookings By Destination': ['Destination', 'Bookings Count'],
-            'Bookings By Hotel': ['Hotel', 'Bookings Count'],
-            'Bookings By Transport': ['Transport Method', 'Bookings Count'],
-            'New Users Over Time': ['Date', 'New Users Count'],
+            'Summary': (2, ['Metric', 'Value']),
+            'Bookings Over Time': (1, ['Date', 'Bookings Count']),
+            'New Users Over Time': (1, ['Date', 'New Users Count']),
+            'Most Booked Trips': (1, ['Trip Name', 'Bookings Count']),
+            'Bookings By Destination': (1, ['Destination', 'Bookings Count']),
+            'Bookings By Hotel': (1, ['Hotel', 'Bookings Count']),
+            'Bookings By Transport Method': (1, ['Transport Method', 'Bookings Count']),
         }
-        for sheet_name, headers in expected_headers.items():
+        for sheet_name, (header_row, headers) in expected_headers.items():
             sheet = workbook[sheet_name]
-            actual_headers = [cell.value for cell in sheet[1]]
+            actual_headers = [cell.value for cell in sheet[header_row]][:len(headers)]
             self.assertEqual(actual_headers, headers, f'unexpected headers on {sheet_name!r}')
+
+    def test_summary_sheet_has_brand_title_banner(self):
+        response = self.client.get('/statistics/export/')
+        workbook = load_workbook(io.BytesIO(response.content))
+        self.assertEqual(workbook['Summary']['A1'].value, 'Sama al Majd')
+
+    def test_workbook_properties_use_brand_name(self):
+        response = self.client.get('/statistics/export/')
+        workbook = load_workbook(io.BytesIO(response.content))
+        self.assertEqual(workbook.properties.title, 'Sama al Majd')
 
     def test_export_sheets_have_one_row_per_record(self):
         response = self.client.get('/statistics/export/')
@@ -225,13 +236,28 @@ class StatisticsDataTests(StatisticsTestBase):
 
         for sheet_name in workbook.sheetnames:
             sheet = workbook[sheet_name]
-            header_cell = sheet['A1']
+            header_row = 2 if sheet_name == 'Summary' else 1
+            header_cell = sheet.cell(row=header_row, column=1)
             self.assertTrue(header_cell.font.bold, f'{sheet_name!r} header is not bold')
             self.assertEqual(
                 header_cell.fill.start_color.rgb, 'FF14B8A6',
                 f'{sheet_name!r} header is not the site primary color',
             )
-            self.assertEqual(sheet.freeze_panes, 'A2', f'{sheet_name!r} header row is not frozen')
+            self.assertEqual(
+                sheet.freeze_panes, f'A{header_row + 1}',
+                f'{sheet_name!r} header row is not frozen',
+            )
+
+    def test_export_data_rows_are_zebra_striped(self):
+        response = self.client.get('/statistics/export/')
+        workbook = load_workbook(io.BytesIO(response.content))
+
+        # 4 distinct trip_date values in the fixture data, so rows 2-5 give
+        # us two consecutive data rows to compare.
+        sheet = workbook['Bookings Over Time']
+        first_data_row_fill = sheet.cell(row=2, column=1).fill.start_color.rgb
+        second_data_row_fill = sheet.cell(row=3, column=1).fill.start_color.rgb
+        self.assertNotEqual(first_data_row_fill, second_data_row_fill)
 
     def test_export_column_widths_fit_content(self):
         response = self.client.get('/statistics/export/')
@@ -243,6 +269,25 @@ class StatisticsDataTests(StatisticsTestBase):
         # left at openpyxl's unset/default width.
         self.assertIsNotNone(trips_sheet.column_dimensions['A'].width)
         self.assertGreater(trips_sheet.column_dimensions['A'].width, len('Trip Name'))
+
+    def test_export_sheets_with_enough_rows_have_native_charts(self):
+        response = self.client.get('/statistics/export/')
+        workbook = load_workbook(io.BytesIO(response.content))
+
+        # 4 distinct trip_date values in the fixture data clears the
+        # MIN_ROWS_FOR_CHART threshold, so this sheet must carry a real
+        # embedded chart object, not just data.
+        bookings_over_time_sheet = workbook['Bookings Over Time']
+        self.assertGreaterEqual(len(bookings_over_time_sheet._charts), 1)
+
+    def test_export_sheets_below_chart_threshold_have_no_chart(self):
+        response = self.client.get('/statistics/export/')
+        workbook = load_workbook(io.BytesIO(response.content))
+
+        # Only 2 transport methods (plane/bus) in the fixture data — below
+        # MIN_ROWS_FOR_CHART, so no chart should be added.
+        transport_sheet = workbook['Bookings By Transport Method']
+        self.assertEqual(len(transport_sheet._charts), 0)
 
 
 class StatisticsAdminPageTests(StatisticsTestBase):

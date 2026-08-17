@@ -50,11 +50,6 @@
   color: var(--stat-neutral-900);
   margin: 0;
 }
-.stat-page-header .stat-arabic {
-  font-size: 18px;
-  color: var(--stat-neutral-500);
-  font-weight: 400;
-}
 
 .stat-card {
   background-color: var(--stat-surface);

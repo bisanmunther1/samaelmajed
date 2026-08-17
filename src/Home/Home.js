@@ -20,7 +20,7 @@ export default function Home()
       </video>
       
         <div id="img_and_title_container">
-          <div className="home_img_site" >سما المجد</div>
+          <div className="home_img_site" >Sama al Majd</div>
           <div className="home_title_site">
             All the world on one site </div>
         </div>

@@ -13,7 +13,6 @@
 
   <div class="stat-page-header">
     <h1>Statistics</h1>
-    <span class="stat-arabic">الإحصائيات</span>
   </div>
 
   <div class="stat-card stat-filter-bar">
@@ -259,10 +258,14 @@
         fillTable('bookings_by_destination_body', data.bookings_by_destination, 'place');
         fillTable('bookings_by_hotel_body', data.bookings_by_hotel, 'hotel_name');
         fillTable('bookings_by_transport_body', data.bookings_by_transport, 'transport_method');
-        renderCharts(data);
 
         loadingMessage.style.display = 'none';
+        // Charts must be built/updated only after stats_content is visible —
+        // Chart.js measures the canvas's parent at creation/update time, and
+        // a display:none parent yields a 0-size (or stale-sized) canvas that
+        // then renders with visible artifacts once shown.
         statsContent.style.display = 'block';
+        renderCharts(data);
       })
       .catch(function (error) {
         loadingMessage.style.display = 'none';

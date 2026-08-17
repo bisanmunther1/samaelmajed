@@ -50,7 +50,7 @@ const  newdestClick =() => {
       <div id="AboutUsSection">
         
         <p className='text_edit'>
-       <span  style={{fontWeight:'bold', fontSize:'35px', textShadow:'0px 0px 1px black',}}>سما المجد  is your best chosen... </span>
+       <span  style={{fontWeight:'bold', fontSize:'35px', textShadow:'0px 0px 1px black',}}>Sama al Majd  is your best chosen...</span>
         <br></br>It provides Luxury travel, Adventure trips, Family vacations.
         <br></br>We are here to help you choose the best and most comfortable Trip
         <br></br>Decide your desination ,Booking a hotel and choose resturants.
@@ -64,7 +64,7 @@ const  newdestClick =() => {
       <div id="welcomVisitor">
         <h2 className="titleMS" >Welcome Our Visitor</h2>
         <p>Complete your hotel booking and resturant chosing and tick off your dreams destinations from your bukcet list
-           <br></br> and like we always say "<span style={{fontStyle: 'italic'  ,}}>To Travel Is To Live</span>" so Travel with "سما المجد?"
+           <br></br> and like we always say "<span style={{fontStyle: 'italic'  ,}}>To Travel Is To Live</span>" so Travel with "Sama al Majd?"
         </p>
         <p >For eruditeness the services we offer<br></br>Go to the Home bage</p>
         <Link to={"/"} id="home_link_from_about" title="Home page" onClick={()=>edit_style("Header_Button-Home") } >
@@ -89,7 +89,7 @@ const  newdestClick =() => {
           </div>
           <div id="Why" className="card" onClick={whyClick}>
             <i className="fa-solid fa-plane-departure" style={{ fontSize: "40px", marginTop: "2%", borderRadius: 'var(--radius-md)', backgroundColor: "var(--color-secondary-dark)", color: "var(--color-surface)", padding: "10px" }}></i>
-            <h3> Why سما المجد</h3>
+            <h3> Why Sama al Majd</h3>
             <p>Click to see our services make us the best travel website</p>
               </div>
         </div>
@@ -110,7 +110,7 @@ const  newdestClick =() => {
         <div id="newDest">
           <div className="newText">
            <h3>Choose Destination</h3>
-           At سما المجد we help you choose yor destination ,We Exposes the most wonderful plasec aroun World,
+           At Sama al Majd we help you choose yor destination ,We Exposes the most wonderful plasec aroun World,
            If wou want to visits a Historical Sites,Enjoy the Picturesqe Nature,go to beach 
            and enjoy whith sea and its waves and staying in comfortable chalets,Experience an advanture
            on the slopes of the mountains .
@@ -122,7 +122,7 @@ const  newdestClick =() => {
          </div>
          <div id="newWhy">
           <div className="newText">
-           <h3>Why سما المجد</h3>
+           <h3>Why Sama al Majd</h3>
            <ul><li>choose from over 1M around the global</li>
              <li>Exclusive flight deals</li>
              <li>Provides realistic images of sites</li> 

@@ -206,13 +206,13 @@ JAZZMIN_SETTINGS = {
     "site_title": "",
 
     # Title on the login screen (19 chars max) (defaults to current_admin_site.site_header if absent or None)
-    "site_header": "سما المجد",
+    "site_header": "Sama al Majd",
 
     # Title on the brand (19 chars max) (defaults to current_admin_site.site_header if absent or None)
-    "site_brand": "سما المجد",
+    "site_brand": "Sama al Majd",
 
     # Logo to use for your site, must be present in static files, used for brand on top left
-    "site_logo": "image/sama_almajd_admin_logo.svg",
+    "site_logo": "image/sama_al_majd_admin_logo.svg",
 
     # Logo to use for your site, must be present in static files, used for login form logo (defaults to site_logo)
     "login_logo": None,
@@ -230,7 +230,7 @@ JAZZMIN_SETTINGS = {
     "welcome_sign": "Welcome to the library",
 
     # Copyright on the footer
-    "copyright": "سما المجد",
+    "copyright": "Sama al Majd",
 
     # List of model admins to search from the search bar, search bar omitted if excluded
     # If you want to use a single search field you dont need to use a list, you can use a simple string 

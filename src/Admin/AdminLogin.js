@@ -35,7 +35,7 @@ export default function AdminLogin() {
   return (
     <div id="admin_login_page">
       <Card className="admin_login_card">
-        <h1>سما المجد Admin</h1>
+        <h1>Sama al Majd Admin</h1>
         <p className="admin_login_subtitle">Staff sign in</p>
 
         <form onSubmit={handle_submit}>

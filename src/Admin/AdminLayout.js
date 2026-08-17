@@ -25,8 +25,8 @@ export default function AdminLayout() {
     <div id="admin_shell">
       <aside id="admin_sidebar">
         <div id="admin_brand">
-          <span id="admin_brand_mark">س</span>
-          <span>سما المجد Admin</span>
+          <span id="admin_brand_mark">S</span>
+          <span>Sama al Majd Admin</span>
         </div>
 
         <nav id="admin_nav">
