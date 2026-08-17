@@ -18,6 +18,9 @@ beforeEach(() => {
   // Reserve_trip's mocked reserve() reaches into these ids directly; not present
   // here since <Reserve_trip /> isn't mounted, so keep a stub background/name.
   document.body.innerHTML = '';
+  // The FilterBar fetches its destination list and price bounds on mount.
+  axios.get.mockResolvedValue({ data: { places: [], min_price: 0, max_price: 0 } });
+  window.history.replaceState({}, '', '/');
 });
 
 test('shows a loading skeleton while trips are being fetched', () => {
@@ -78,16 +81,48 @@ test('switching trip type triggers a new fetch for that type', async () => {
   expect(await screen.findByText('Nature Trip')).toBeInTheDocument();
 });
 
-test('filtering by place is included in the request body', async () => {
+// Coverage moved off the retired inline filter panel and onto the FilterBar:
+// destination filtering now travels on the query string, not the POST body.
+test('filtering by destination is sent as a query param', async () => {
+  axios.get.mockResolvedValue({
+    data: { places: ['Aswan'], min_price: 0, max_price: 900 },
+  });
   axios.post.mockResolvedValue({ data: [] });
   renderGallery();
-  await screen.findByText('No trips match your filters');
+  await screen.findByRole('option', { name: 'Aswan' });
 
-  fireEvent.click(screen.getByText('Show Filters'));
-  fireEvent.change(screen.getByPlaceholderText('Any'), { target: { value: 'Aswan' } });
+  fireEvent.change(screen.getByLabelText('الوجهة'), { target: { value: 'Aswan' } });
 
   await waitFor(() => {
     const lastCall = axios.post.mock.calls[axios.post.mock.calls.length - 1];
-    expect(lastCall[1].place).toBe('Aswan');
+    expect(lastCall[0]).toContain('place=Aswan');
   });
+});
+
+test('the request body still carries every key the listing endpoint requires', async () => {
+  axios.post.mockResolvedValue({ data: [] });
+  renderGallery();
+
+  await waitFor(() => expect(axios.post).toHaveBeenCalled());
+
+  const [, body] = axios.post.mock.calls[axios.post.mock.calls.length - 1];
+  // send_trip_cards reads all six off request.data and KeyErrors without them.
+  expect(body).toEqual({
+    place: 'Any',
+    price: 100000,
+    rate: 0,
+    order_by: 'name',
+    reverse: false,
+    number_of_images: 8,
+  });
+});
+
+test('the retired inline filter panel is gone', async () => {
+  axios.post.mockResolvedValue({ data: [] });
+  renderGallery();
+  await waitFor(() => expect(axios.post).toHaveBeenCalled());
+
+  expect(screen.queryByText('Show Filters')).not.toBeInTheDocument();
+  expect(screen.queryByPlaceholderText('Any')).not.toBeInTheDocument();
+  expect(screen.queryByText('Reverse Order')).not.toBeInTheDocument();
 });

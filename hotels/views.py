@@ -6,6 +6,8 @@ from rest_framework.decorators import api_view
  
 from .models import Hotels
 
+from common.filtering import FilterError, apply_hotel_filters
+
 
 
 @api_view(['POST'])
@@ -19,8 +21,17 @@ def get_hotel(request ):
 
 @api_view(['GET'])
 def get_hotels_price(request , trip_name):
-    hotels = Hotels.objects.filter(trip_name = trip_name).values('price','name')
-    
+    hotels = Hotels.objects.filter(trip_name = trip_name)
+
+    # FR-39, additive: with no query params this is the same set in the same
+    # order, and the [[prices], [names]] response shape is unchanged.
+    try:
+        hotels = apply_hotel_filters(hotels, request.query_params)
+    except FilterError as error:
+        return Response(error.payload, status = 400)
+
+    hotels = hotels.values('price','name')
+
     hotel_arr =list(hotels)
 
     part1=[] #price

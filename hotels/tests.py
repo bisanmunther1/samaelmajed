@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.test import TestCase
 from rest_framework.test import APIClient
 
@@ -62,3 +64,56 @@ class HotelViewsTests(TestCase):
         response = self.client.get('/hotels/get_prices/No Hotels Trip/')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, [[], []])
+
+
+class HotelFilterTests(TestCase):
+    """FR-39 on the hotel listing — additive, and the [[prices], [names]]
+    response shape is untouched."""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.trip = Trips.objects.create(
+            name='Filter Trip', place='X', price=1, rate=1, num=1, discount=0, desc='d',
+        )
+        self.features = Trip_features.objects.create(name=self.trip)
+        cheap = Hotels.objects.create(trip_name=self.features, name='Budget Filter Inn', price=40)
+        pricey = Hotels.objects.create(trip_name=self.features, name='Grand Filter Palace', price=400)
+
+        Hotels.objects.filter(pk=cheap.pk).update(average_rating=Decimal('2.00'))
+        Hotels.objects.filter(pk=pricey.pk).update(average_rating=Decimal('4.80'))
+
+    def listing(self, query=''):
+        url = '/hotels/get_prices/Filter Trip/'
+        if query:
+            url = f'{url}?{query}'
+        return self.client.get(url)
+
+    def names(self, response):
+        return set(response.data[1])
+
+    def test_no_query_params_returns_both_lists_as_before(self):
+        response = self.listing()
+
+        self.assertEqual(response.status_code, 200)
+        prices, names = response.data
+        self.assertEqual(set(names), {'Budget Filter Inn', 'Grand Filter Palace'})
+        self.assertEqual(len(prices), 2)
+
+    def test_search_narrows_by_hotel_name(self):
+        self.assertEqual(self.names(self.listing('search=budget')), {'Budget Filter Inn'})
+
+    def test_price_range_narrows_the_list(self):
+        self.assertEqual(self.names(self.listing('max_price=100')), {'Budget Filter Inn'})
+
+    def test_min_rating_uses_the_review_aggregate(self):
+        self.assertEqual(self.names(self.listing('min_rating=4')), {'Grand Filter Palace'})
+
+    def test_ordering_by_price_descending(self):
+        _, names = self.listing('ordering=-price').data
+        self.assertEqual(names, ['Grand Filter Palace', 'Budget Filter Inn'])
+
+    def test_invalid_price_is_a_coded_400(self):
+        response = self.listing('min_price=nope')
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data['code'], 'invalid_price')

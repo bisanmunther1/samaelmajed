@@ -7,6 +7,36 @@ import Skeleton from "../../ui/Skeleton/Skeleton";
 import EmptyState from "../../ui/EmptyState/EmptyState";
 import ErrorState from "../../ui/ErrorState/ErrorState";
 import { useBooking } from "../../Reserve_trip/BookingContext";
+import { FILTER_ERROR_MESSAGES, FILTER_STRINGS } from "../../Filters/strings";
+
+// The listing endpoint predates FR-39 and still reads these six keys straight
+// off the POST body (it KeyErrors without them). The retired Gallery filter
+// panel used to populate them; they are now fixed neutral values — "any place,
+// any price, any rate, name order, not reversed" — and every real filter
+// travels on the query string instead.
+const LEGACY_BODY = {
+  place: "Any",
+  price: 100000,
+  rate: 0,
+  order_by: "name",
+  reverse: false,
+};
+
+function build_query(advanced_filters) {
+  const params = new URLSearchParams();
+  Object.entries(advanced_filters || {}).forEach(([key, value]) => {
+    if (value !== "" && value !== null && value !== undefined) params.set(key, value);
+  });
+  return params.toString();
+}
+
+// A rejected filter comes back as a coded 400 from common/filtering.py; a
+// dropped connection does not. They deserve different messages.
+function filter_error_message(error) {
+  const data = error && error.response ? error.response.data : null;
+  if (!data || !data.code) return null;
+  return FILTER_ERROR_MESSAGES[data.code] || data.detail || FILTER_STRINGS.invalid_filters;
+}
 
 export default function Photo_beach_city_nature(props) {
   /*
@@ -18,35 +48,33 @@ export default function Photo_beach_city_nature(props) {
 
   const [status, set_status] = useState("loading"); // 'loading' | 'error' | 'success'
   const [trips, set_trips] = useState([]);
+  const [error_message, set_error_message] = useState(null);
   const [retry_key, set_retry_key] = useState(0);
   const { openBooking } = useBooking();
 
-  const order_by = props.order.toLowerCase();
+  const query = build_query(props.advancedFilters);
+  const { onResultCount } = props;
 
   useEffect(() => {
     let cancelled = false;
     set_status("loading");
 
     let url = `http://127.0.0.1:8000/trips/send_trip_cards/${props.type}/`;
-    let body = {
-      number_of_images: props.cnt,
-      place: props.place,
-      rate: props.rate,
-      price: props.price,
-      order_by: order_by,
-      reverse: props.reverse,
-    };
+    if (query) url = `${url}?${query}`;
+
+    let body = { ...LEGACY_BODY, number_of_images: props.cnt };
 
     axios
       .post(url, body)
       .then((res) => {
         if (cancelled) return;
         set_trips(res.data);
+        set_error_message(null);
         set_status("success");
       })
       .catch((err) => {
         if (cancelled) return;
-        console.log("there was an error from trip cards", err);
+        set_error_message(filter_error_message(err));
         set_status("error");
       });
 
@@ -54,7 +82,17 @@ export default function Photo_beach_city_nature(props) {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.type, props.cnt, props.place, props.rate, props.price, order_by, props.reverse, retry_key]);
+  }, [props.type, props.cnt, query, retry_key]);
+
+  // Filtering is the server's job now; all that is left client-side is the
+  // "View All / View Less" cap.
+  const visible_trips =
+    status === "success" ? trips.filter((e, index) => props.cnt > index) : [];
+
+  // Reported upward so the filter bar can show "عدد النتائج: N".
+  useEffect(() => {
+    if (onResultCount) onResultCount(visible_trips.length);
+  }, [visible_trips.length, onResultCount]);
 
   if (status === "loading") {
     return (
@@ -75,22 +113,21 @@ export default function Photo_beach_city_nature(props) {
   if (status === "error") {
     return (
       <ErrorState
-        message="We couldn't load these trips. Please try again."
+        message={error_message || "We couldn't load these trips. Please try again."}
         onRetry={() => set_retry_key((k) => k + 1)}
       />
     );
   }
 
-  const visible_trips = trips.filter(
-    (e, index) =>
-      props.cnt > index &&
-      e.price <= props.price &&
-      (e.place === props.place || props.place === "Any") &&
-      e.rate >= props.rate
-  );
-
   if (visible_trips.length === 0) {
-    return <EmptyState icon="fa-regular fa-face-frown" title="No trips match your filters" />;
+    const filtered = Boolean(query);
+    return (
+      <EmptyState
+        icon="fa-regular fa-face-frown"
+        title={filtered ? FILTER_STRINGS.empty_title : "No trips match your filters"}
+        message={filtered ? FILTER_STRINGS.empty_message : undefined}
+      />
+    );
   }
 
   return (

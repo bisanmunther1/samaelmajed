@@ -227,3 +227,169 @@ class AdminCrudReflectedInPublicEndpointsTests(TestCase):
         }, format='json')
         names = [t['name'] for t in public.data]
         self.assertNotIn('Deletable Trip', names)
+
+
+class AdvancedFilterTests(TestCase):
+    """FR-39 — query-string filters on the trip listing. They are additive, so
+    the no-params response must stay byte-identical to the pre-FR-39 one."""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.cheap = make_trip('Cheap Cairo', place='Cairo', price=50, rate=3.0, type='Beach')
+        self.mid = make_trip('Mid Aswan', place='Aswan', price=300, rate=4.0, type='Beach')
+        self.pricey = make_trip('Pricey Luxor', place='Luxor', price=900, rate=5.0, type='Beach')
+        self.closed = make_trip('Closed Cairo', place='Cairo', price=120, rate=4.0,
+                                type='Beach', available=False)
+
+        Trips.objects.filter(pk=self.cheap.pk).update(average_rating=Decimal('2.00'), reviews_count=3)
+        Trips.objects.filter(pk=self.mid.pk).update(average_rating=Decimal('4.50'), reviews_count=9)
+        Trips.objects.filter(pk=self.pricey.pk).update(average_rating=Decimal('5.00'), reviews_count=1)
+
+    def _body(self, **overrides):
+        body = dict(price=100000, rate=0, order_by='name', place='Any',
+                    reverse=False, number_of_images=50)
+        body.update(overrides)
+        return body
+
+    def listing(self, query='', **body_overrides):
+        url = '/trips/send_trip_cards/Beach/'
+        if query:
+            url = f'{url}?{query}'
+        return self.client.post(url, self._body(**body_overrides), format='json')
+
+    def names(self, response):
+        return {row['name'] for row in response.data}
+
+    def test_no_query_params_returns_exactly_what_it_did_before(self):
+        response = self.listing()
+
+        self.assertEqual(response.status_code, 200)
+        # available=True still implicit, unavailable trip still excluded
+        self.assertEqual(self.names(response), {'Cheap Cairo', 'Mid Aswan', 'Pricey Luxor'})
+
+    def test_search_matches_name_case_insensitively(self):
+        self.assertEqual(self.names(self.listing('search=cairo')), {'Cheap Cairo'})
+
+    def test_search_also_matches_the_destination(self):
+        self.assertEqual(self.names(self.listing('search=luxor')), {'Pricey Luxor'})
+
+    def test_place_filters_on_an_exact_destination(self):
+        self.assertEqual(self.names(self.listing('place=Aswan')), {'Mid Aswan'})
+
+    def test_min_price_and_max_price_bound_the_range(self):
+        self.assertEqual(self.names(self.listing('min_price=100')), {'Mid Aswan', 'Pricey Luxor'})
+        self.assertEqual(self.names(self.listing('max_price=100')), {'Cheap Cairo'})
+
+    def test_min_rating_uses_the_review_aggregate_not_the_editorial_rate(self):
+        # Cheap Cairo has editorial rate 3.0 but an average_rating of 2.00.
+        self.assertEqual(self.names(self.listing('min_rating=4')), {'Mid Aswan', 'Pricey Luxor'})
+
+    def test_available_false_surfaces_the_unavailable_trips(self):
+        self.assertEqual(self.names(self.listing('available=false')), {'Closed Cairo'})
+
+    def test_ordering_by_price_descending(self):
+        response = self.listing('ordering=-price')
+        self.assertEqual([row['name'] for row in response.data],
+                         ['Pricey Luxor', 'Mid Aswan', 'Cheap Cairo'])
+
+    def test_ordering_by_reviews_count_descending(self):
+        response = self.listing('ordering=-reviews_count')
+        self.assertEqual([row['name'] for row in response.data][0], 'Mid Aswan')
+
+    def test_filters_combine(self):
+        response = self.listing('search=a&min_price=100&max_price=500&min_rating=4')
+        self.assertEqual(self.names(response), {'Mid Aswan'})
+
+    def test_unknown_params_are_ignored(self):
+        response = self.listing('colour=blue&sort_by=magic')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.names(response), {'Cheap Cairo', 'Mid Aswan', 'Pricey Luxor'})
+
+    def test_non_numeric_price_is_a_coded_400(self):
+        response = self.listing('min_price=abc')
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data['code'], 'invalid_price')
+        self.assertEqual(response.data['detail'], 'قيمة السعر يجب أن تكون رقماً موجباً.')
+
+    def test_rating_above_five_is_a_coded_400(self):
+        response = self.listing('min_rating=9')
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data['code'], 'invalid_rating')
+
+    def test_inverted_price_range_is_a_coded_400(self):
+        response = self.listing('min_price=500&max_price=100')
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data['code'], 'invalid_price_range')
+
+    def test_unsupported_ordering_is_a_coded_400(self):
+        response = self.listing('ordering=desc__drop_table')
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data['code'], 'invalid_ordering')
+
+    def test_non_boolean_available_is_a_coded_400(self):
+        response = self.listing('available=maybe')
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data['code'], 'invalid_boolean')
+
+
+class FilterOptionsTests(TestCase):
+
+    def setUp(self):
+        self.client = APIClient()
+
+    def test_returns_distinct_places_and_the_real_price_bounds(self):
+        make_trip('A', place='Cairo', price=50)
+        make_trip('B', place='Cairo', price=400)
+        make_trip('C', place='Aswan', price=900)
+
+        response = self.client.get('/api/trips/filter-options/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['places'], ['Aswan', 'Cairo'])
+        self.assertEqual(response.data['min_price'], Decimal('50'))
+        self.assertEqual(response.data['max_price'], Decimal('900'))
+
+    def test_is_public_and_copes_with_an_empty_catalogue(self):
+        response = self.client.get('/api/trips/filter-options/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['places'], [])
+        self.assertEqual(response.data['min_price'], 0)
+
+
+class MigratedOrderingTests(TestCase):
+    """The sorts the retired Gallery filter panel used to offer, now expressed
+    as `ordering` values."""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.quiet = make_trip('Quiet Trip', place='Cairo', price=100, rate=2.0, num=1, type='Beach')
+        self.busy = make_trip('Busy Trip', place='Cairo', price=100, rate=5.0, num=99, type='Beach')
+
+    def order(self, value):
+        response = self.client.post(
+            f'/trips/send_trip_cards/Beach/?ordering={value}',
+            dict(price=100000, rate=0, order_by='name', place='Any',
+                 reverse=False, number_of_images=50),
+            format='json',
+        )
+        self.assertEqual(response.status_code, 200, response.data)
+        return [row['name'] for row in response.data]
+
+    def test_most_visited_first(self):
+        self.assertEqual(self.order('-num')[0], 'Busy Trip')
+
+    def test_editorial_rate_descending(self):
+        self.assertEqual(self.order('-rate')[0], 'Busy Trip')
+
+    def test_reverse_alphabetical(self):
+        self.assertEqual(self.order('-name'), ['Quiet Trip', 'Busy Trip'])
+
+    def test_alphabetical(self):
+        self.assertEqual(self.order('name'), ['Busy Trip', 'Quiet Trip'])
