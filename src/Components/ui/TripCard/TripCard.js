@@ -18,6 +18,10 @@ export default function TripCard({
 }) {
   const [showInfo, setShowInfo] = useState(false);
 
+  // FR-38: real traveler reviews win over the admin-entered editorial rate;
+  // `rate` only stands in for trips nobody has reviewed yet.
+  const displayRate = reviewsCount > 0 ? averageRating : rate;
+
   return (
     <Card className="trip-card" padding={false} hoverable>
       <CardMedia
@@ -44,7 +48,7 @@ export default function TripCard({
             <i className="fa-solid fa-dollar-sign" aria-hidden="true"></i>
           </span>
           <span className="trip-card-meta-item">
-            {rate}
+            {displayRate}
             <i className="fa-solid fa-star" aria-hidden="true"></i>
           </span>
           <span className="trip-card-meta-item">

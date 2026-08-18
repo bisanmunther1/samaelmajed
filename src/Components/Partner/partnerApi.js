@@ -31,6 +31,7 @@ async function refresh_access_token() {
   try {
     const response = await axios.post(`${API_BASE}/token/refresh/`, { refresh: refresh_token });
     localStorage.setItem("access_token", response.data.access);
+    if (response.data.refresh) localStorage.setItem("refresh_token", response.data.refresh);
     return response.data.access;
   } catch (error) {
     return null;

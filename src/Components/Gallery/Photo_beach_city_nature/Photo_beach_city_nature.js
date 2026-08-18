@@ -138,7 +138,7 @@ export default function Photo_beach_city_nature(props) {
           key={e.name}
           name={e.name}
           image={e.img}
-          price={e.price}
+          price={e.final_price}
           rate={e.rate}
           visitors={e.num}
           description={e.desc}

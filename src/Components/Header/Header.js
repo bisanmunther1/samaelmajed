@@ -83,11 +83,14 @@ export default function Header() {
          }
       },
        )
-      .then(() => {
+      .catch(err => { console.log('log out error', err); })
+      .finally(() => {
+        // Whatever the server-side blacklist call did, the user asked to be
+        // logged out — an expired/already-blacklisted token shouldn't be able
+        // to strand them in a logged-in-looking state.
         localStorage.clear();
         window.location.href = '/';
-       })
-      .catch(err => { console.log('log out error'); });
+      });
   }
 
   function closeMenu() {

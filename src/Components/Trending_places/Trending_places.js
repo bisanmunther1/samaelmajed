@@ -67,7 +67,7 @@ export default function Trending_places() {
         key={e.name}
         name={e.name}
         image={e.img}
-        price={e.price}
+        price={e.final_price}
         rate={e.rate}
         visitors={e.num}
         averageRating={e.average_rating}

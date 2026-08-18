@@ -6,6 +6,9 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase
 from rest_framework.test import APIClient
 
+from hotels.models import Hotels
+from profiles.models import Profile, Trip_per_user
+from reviews.models import Review
 from trip_features.models import Trip_features
 from .models import Trips
 
@@ -393,3 +396,90 @@ class MigratedOrderingTests(TestCase):
 
     def test_alphabetical(self):
         self.assertEqual(self.order('name'), ['Busy Trip', 'Quiet Trip'])
+
+
+class FinalPriceTests(TestCase):
+    """The card's discount badge and displayed price must never drift apart:
+    both come from `final_price`, computed once in trips/pricing.py."""
+
+    def setUp(self):
+        self.client = APIClient()
+        make_trip('Discounted Trip', price=400, discount=50, type='Beach')
+        make_trip('No Discount Trip', price=200, discount=0, type='Beach')
+
+    def _body(self, **overrides):
+        body = dict(price=100000, rate=0, order_by='name', place='Any', reverse=False, number_of_images=10)
+        body.update(overrides)
+        return body
+
+    def test_final_price_is_price_minus_the_trips_own_discount(self):
+        response = self.client.post('/trips/send_trip_cards/Beach/', self._body(), format='json')
+        rows = {row['name']: row for row in response.data}
+        self.assertEqual(rows['Discounted Trip']['final_price'], Decimal('200'))
+        self.assertEqual(rows['No Discount Trip']['final_price'], Decimal('200'))
+
+    def test_final_price_present_on_trending_and_discounted_endpoints(self):
+        trending = self.client.get('/trips/trending/Beach/')
+        self.assertTrue(trending.data)
+        self.assertTrue(all('final_price' in row for row in trending.data))
+
+        discounted = self.client.post('/trips/discount/')
+        self.assertTrue(discounted.data)
+        self.assertTrue(all('final_price' in row for row in discounted.data))
+
+    def test_final_price_has_no_stale_value_after_a_price_edit(self):
+        Trips.objects.filter(pk='Discounted Trip').update(price=500)
+
+        response = self.client.post('/trips/send_trip_cards/Beach/', self._body(), format='json')
+        row = next(r for r in response.data if r['name'] == 'Discounted Trip')
+        self.assertEqual(row['final_price'], Decimal('250'))
+
+
+class CardDataReflectsNewActivityTests(TestCase):
+    """A trip card must never show a number left over from an earlier request.
+    A new booking or review has to show up on the very next call to the
+    endpoints that feed the card — no rebuild, nothing cached."""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.trip = make_trip('Live Trip', num=5, type='Beach', price=100, discount=0)
+
+        self.user = User.objects.create_user(username='liveuser', password='pass12345')
+        self.profile = Profile.objects.create(username='liveuser', email='live@example.com', user=self.user)
+
+        features = Trip_features.objects.create(name=self.trip)
+        Hotels.objects.create(trip_name=features, name='Live Hotel', price=60)
+
+    def _listing(self):
+        return self.client.post('/trips/send_trip_cards/Beach/', {
+            'price': 100000, 'rate': 0, 'order_by': 'name', 'place': 'Any',
+            'reverse': False, 'number_of_images': 10,
+        }, format='json').data
+
+    def test_visitor_count_updates_immediately_after_a_new_booking(self):
+        before = next(r for r in self._listing() if r['name'] == 'Live Trip')
+        self.assertEqual(before['num'], Decimal('5'))
+
+        self.client.post('/profile/update_profile/', {
+            'username': 'liveuser', 'price': 100, 'trip_date': '2026-01-01',
+            'trip_name': 'Live Trip', 'hotel_name': 'no_name', 'hotel_reserve_date': '',
+        }, format='json')
+
+        after = next(r for r in self._listing() if r['name'] == 'Live Trip')
+        self.assertEqual(after['num'], Decimal('6'))
+
+    def test_average_rating_updates_immediately_after_a_new_review(self):
+        booking = Trip_per_user.objects.create(
+            username=self.profile, trip=self.trip, trip_date='2020-01-01',
+            hotel=None, hotel_reserve_date=None, price=100, is_paid=True,
+        )
+
+        before = next(r for r in self._listing() if r['name'] == 'Live Trip')
+        self.assertEqual(before['average_rating'], Decimal('0.00'))
+        self.assertEqual(before['reviews_count'], 0)
+
+        Review.objects.create(user=self.user, booking=booking, trip=self.trip, rating=5, comment='Great trip')
+
+        after = next(r for r in self._listing() if r['name'] == 'Live Trip')
+        self.assertEqual(after['average_rating'], Decimal('5.00'))
+        self.assertEqual(after['reviews_count'], 1)

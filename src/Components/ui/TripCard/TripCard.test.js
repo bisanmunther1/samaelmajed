@@ -56,3 +56,41 @@ test('does not render a more-info toggle when no description is given', () => {
   render(<TripCard name="Cairo Trip" image="/img.jpg" price={100} rate={4.5} visitors={20} />);
   expect(screen.queryByText('more info')).not.toBeInTheDocument();
 });
+
+test('falls back to the editorial rate when the trip has no reviews yet', () => {
+  render(
+    <TripCard name="Cairo Trip" image="/img.jpg" price={100} rate={3.0} visitors={20}
+      averageRating={4.7} reviewsCount={0} />
+  );
+  expect(screen.getByText('3')).toBeInTheDocument();
+  expect(screen.queryByText('4.7')).not.toBeInTheDocument();
+});
+
+test('shows the real average rating instead of the editorial rate once the trip has reviews', () => {
+  render(
+    <TripCard name="Cairo Trip" image="/img.jpg" price={100} rate={3.0} visitors={20}
+      averageRating={4.7} reviewsCount={5} />
+  );
+  expect(screen.getByText('4.7')).toBeInTheDocument();
+  expect(screen.queryByText('3')).not.toBeInTheDocument();
+});
+
+test('updates visitors, rating and price with no stale value left behind when the underlying trip data changes', () => {
+  const { rerender } = render(
+    <TripCard name="Cairo Trip" image="/img.jpg" price={100} rate={4.0} visitors={10} reviewsCount={0} />
+  );
+  expect(screen.getByText('100')).toBeInTheDocument();
+  expect(screen.getByText('10')).toBeInTheDocument();
+
+  // Simulates a new booking (visitors, price) and a new review (real rating).
+  rerender(
+    <TripCard name="Cairo Trip" image="/img.jpg" price={120} rate={4.0} visitors={11}
+      averageRating={4.8} reviewsCount={1} />
+  );
+
+  expect(screen.queryByText('100')).not.toBeInTheDocument();
+  expect(screen.getByText('120')).toBeInTheDocument();
+  expect(screen.queryByText('10')).not.toBeInTheDocument();
+  expect(screen.getByText('11')).toBeInTheDocument();
+  expect(screen.getByText('4.8')).toBeInTheDocument();
+});

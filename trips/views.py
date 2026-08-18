@@ -9,6 +9,13 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
 from common.filtering import FilterError, apply_trip_filters
+from .pricing import compute_final_price
+
+
+def _with_final_price(rows):
+    for row in rows:
+        row['final_price'] = compute_final_price(row['price'], row['discount'])
+    return rows
 
 
 @api_view(['POST'])
@@ -44,7 +51,7 @@ def send_trip_cards(request , type):
 
   Len = min( data['number_of_images'] , len(result))
 
-  return Response( result[:Len] ,status =200)
+  return Response( _with_final_price(result[:Len]) ,status =200)
 
 @api_view(['GET'])
 def trending_places(request , type):
@@ -53,7 +60,7 @@ def trending_places(request , type):
      trips_array = list(trips)
      Len = min( 9, len(trips_array))
 
-     return Response( trips_array[:Len] ,status = 200)
+     return Response( _with_final_price(trips_array[:Len]) ,status = 200)
 
 
 @api_view(['POST'])
@@ -65,7 +72,7 @@ def discounted_places(request):
 
   trips_array.reverse()
 
-  return Response( trips_array[:9] ,status = 200)
+  return Response( _with_final_price(trips_array[:9]) ,status = 200)
 
 
 @api_view(['GET'])
