@@ -183,7 +183,11 @@ export default function Reserve_trip() {
     };
   }, [tripName, features_status]);
 
-  const total_price = selected_transport.price + (selected_hotel ? selected_hotel.price : 0);
+  // The trip's own catalog price (trip_features now carries it) -- without
+  // it, booking with no transport and no hotel picked invoiced at $0, even
+  // though the card advertises a real price for the trip itself.
+  const trip_price = features && features.trip_price ? Number(features.trip_price) : 0;
+  const total_price = trip_price + selected_transport.price + (selected_hotel ? selected_hotel.price : 0);
 
   // The server's quote for an applied promo code, or null. The booking endpoint
   // re-prices from scratch, so this only ever drives what is displayed.
@@ -505,6 +509,10 @@ export default function Reserve_trip() {
                   {transport_summary_text()} — {hotel_summary_text()}
                 </div>
                 <div id="reserve_summary_rows">
+                  <div className="reserve_summary_row">
+                    <span>{tripName}</span>
+                    <b>{trip_price}$</b>
+                  </div>
                   <div className="reserve_summary_row">
                     <span>{RESERVE_STRINGS.transport}</span>
                     <b>{selected_transport.price}$</b>
