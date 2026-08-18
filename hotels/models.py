@@ -42,6 +42,13 @@ class Hotels(models.Model):
         default=0, editable=False, verbose_name='Number of reviews',
     )
 
+    # FR-46. NULL means the platform owns this hotel: it stays admin-managed
+    # and no partner can reach it.
+    partner = models.ForeignKey(
+        'partners.Partner', null=True, blank=True, on_delete=models.SET_NULL,
+        related_name='hotels', verbose_name='owning partner',
+    )
+
     class Meta:
      verbose_name = 'Hotel'
      verbose_name_plural = 'Hotels'

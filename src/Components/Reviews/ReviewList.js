@@ -8,7 +8,7 @@ import { useToast } from "../ui/Toast/ToastContext";
 import ReviewForm from "./ReviewForm";
 import StarRating from "./StarRating";
 import { delete_review, fetch_reviews, review_error_message } from "./reviewsApi";
-import { REVIEW_STRINGS, SORT_OPTIONS } from "./strings";
+import { REVIEW_STRINGS, sort_options } from "./strings";
 import "./ReviewList.css";
 
 const PAGE_SIZE = 10;
@@ -25,7 +25,7 @@ export default function ReviewList({ targetType, targetId, refreshKey = 0, onCha
   const [reviews, set_reviews] = useState([]);
   const [count, set_count] = useState(0);
   const [page, set_page] = useState(1);
-  const [ordering, set_ordering] = useState(SORT_OPTIONS[0].value);
+  const [ordering, set_ordering] = useState("-created_at");
   const [editing_id, set_editing_id] = useState(null);
   const [deleting_id, set_deleting_id] = useState(null);
   const [retry_key, set_retry_key] = useState(0);
@@ -91,7 +91,7 @@ export default function ReviewList({ targetType, targetId, refreshKey = 0, onCha
         <label className="review-list-sort">
           <span>{REVIEW_STRINGS.sort_label}</span>
           <select value={ordering} onChange={(event) => set_ordering(event.target.value)}>
-            {SORT_OPTIONS.map((option) => (
+            {sort_options().map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>

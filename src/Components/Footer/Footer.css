@@ -120,7 +120,7 @@
 
 #footer_section2 i {
 
-  padding-right: var(--space-2);
+  padding-inline-end: var(--space-2);
 
 }
 
@@ -150,7 +150,7 @@
 }
 
 #footer_section3 i {
-  padding-right: var(--space-2);
+  padding-inline-end: var(--space-2);
 
 }
 

@@ -47,7 +47,7 @@ export default function PromoCodeInput({ tripName, amount, applied, onApplied, o
 
   if (applied) {
     return (
-      <div className="promo-box promo-box-applied" dir="rtl">
+      <div className="promo-box promo-box-applied">
         <div className="promo-applied-text">
           <span className="promo-applied-title">{PROMO_STRINGS.applied_title(applied.code)}</span>
           {applied.description && (
@@ -63,7 +63,7 @@ export default function PromoCodeInput({ tripName, amount, applied, onApplied, o
   }
 
   return (
-    <form className="promo-box" onSubmit={handle_apply} dir="rtl" noValidate>
+    <form className="promo-box" onSubmit={handle_apply} noValidate>
       <div className="promo-row">
         <Input
           label={PROMO_STRINGS.label}

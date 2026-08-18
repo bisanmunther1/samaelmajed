@@ -511,7 +511,7 @@ export default function Reserve_trip() {
                 </div>
               </div>
 
-              <div id="reserve_seats_box" dir="rtl">
+              <div id="reserve_seats_box">
                 <label className="ui-field-label" htmlFor="reserve_seats">
                   {BOOKING_STRINGS.seats_label}
                 </label>

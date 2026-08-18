@@ -4,8 +4,8 @@ from .models import REFUND_COMPLETED, REFUND_PENDING, Profile   , Trip_per_user
  
 class Search(admin.ModelAdmin):
 
-    list_filter =['username' ,'email']
-    list_display = ['username' ,'email','first_name' , 'last_name','phone' ]
+    list_filter =['username' ,'email' ,'role']
+    list_display = ['username' ,'email','first_name' , 'last_name','phone' ,'role' ]
 
 
 class BookingAdmin(admin.ModelAdmin):

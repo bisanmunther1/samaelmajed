@@ -29,7 +29,7 @@
 }
 
 .Header_Login-Register {
-    margin-left: auto;
+    margin-inline-start: auto;
 }
 
 .Header_site-image{
@@ -116,4 +116,16 @@
     .Header_mobile-toggle {
         display: block;
     }
+}
+
+/* Language toggle. Inherits Header_Button-About for padding, radius, colour and
+   hover; this only adds the icon gap and resets the button chrome. */
+.Header_language-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
 }

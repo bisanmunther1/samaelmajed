@@ -8,9 +8,10 @@ from .models import TripAvailability, Trips
 
 class Search(admin.ModelAdmin):
     search_fields=('name','place')
-    list_display = ['name' , 'price' , 'rate' , 'discount','type' , 'available' ,'Net_Profit']
+    list_display = ['name' , 'price' , 'rate' , 'discount','type' , 'available' ,'partner' ,'Net_Profit']
     list_editable = ['price','rate','type','discount','available']
-    list_filter =['type' ,'name']
+    list_filter =['type' ,'name' ,'partner']
+    list_select_related = ['partner']
 
     def get_readonly_fields(self, request, obj=None):
         # `name` is the primary key. Editing it does not rename the trip — it

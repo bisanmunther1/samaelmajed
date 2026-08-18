@@ -4,11 +4,11 @@ from .models import Hotels
 
 
 class HotelsAdmin(admin.ModelAdmin):
-    list_display = ['name', 'trip_name', 'price', 'rate', 'average_rating', 'reviews_count']
-    list_filter = ['trip_name']
+    list_display = ['name', 'trip_name', 'partner', 'price', 'rate', 'average_rating', 'reviews_count']
+    list_filter = ['trip_name', 'partner']
     # Required for the autocomplete widget on the booking admin's hotel field.
     search_fields = ['name']
-    list_select_related = ['trip_name']
+    list_select_related = ['trip_name', 'partner']
 
     def get_readonly_fields(self, request, obj=None):
         # `name` is the primary key. Editing it does not rename the hotel — it

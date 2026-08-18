@@ -1,15 +1,43 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./Header.css";
 
 import axios from "axios";
 import Button from "../ui/Button/Button";
+import { fetch_partner_me, is_logged_in } from "../Partner/partnerApi";
+import { PARTNER_STRINGS } from "../Partner/strings";
+import { COMMON_STRINGS } from "../../i18n/common";
+import { current_language, set_language } from "../../i18n";
 
 export default function Header() {
 
   let curr_name = localStorage.getItem('username');
 
   const [menuOpen, setMenuOpen] = useState(false);
+
+  // Whether to show the partner link is the server's answer, not a claim read
+  // out of localStorage. A customer who edits storage still gets nothing here,
+  // and every partner endpoint would reject them anyway.
+  const [is_partner, set_is_partner] = useState(false);
+
+  useEffect(() => {
+    if (!is_logged_in()) return undefined;
+
+    let cancelled = false;
+
+    fetch_partner_me()
+      .then((partner) => {
+        if (cancelled) return;
+        set_is_partner(Boolean(partner && partner.is_approved));
+      })
+      .catch(() => {
+        // Not a partner, or the check failed — either way, no link.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   let Update = async () => {
 
@@ -66,6 +94,29 @@ export default function Header() {
     setMenuOpen(false);
   }
 
+  const language = current_language();
+  const next_language = language === "ar" ? "en" : "ar";
+
+  // One toggle rather than two options: with exactly two languages, showing the
+  // one you would switch *to* is both shorter and unambiguous.
+  function language_button(onPick) {
+    return (
+      <button
+        type="button"
+        className="Header_Button-About Header_language-toggle"
+        lang={next_language}
+        aria-label={COMMON_STRINGS.language}
+        onClick={() => {
+          if (onPick) onPick();
+          set_language(next_language);
+        }}
+      >
+        <i className="fa-solid fa-globe" aria-hidden="true"></i>
+        {next_language === "ar" ? COMMON_STRINGS.language_arabic : COMMON_STRINGS.language_english}
+      </button>
+    );
+  }
+
   return (
     <header className="Header_Header">
       <div className="Header_bar">
@@ -79,6 +130,14 @@ export default function Header() {
             <Link to={"/About/About.js"} className="Header_Button-About">
               About
             </Link>
+
+            {is_partner && (
+              <Link to={"/Partner/Partner.js"} className="Header_Button-About">
+                {PARTNER_STRINGS.nav_link}
+              </Link>
+            )}
+
+            {language_button()}
           </nav>
         </div>
 
@@ -121,6 +180,12 @@ export default function Header() {
           <Link to={"/About/About.js"} className="Header_Button-About" onClick={closeMenu}>
             About
           </Link>
+          {is_partner && (
+            <Link to={"/Partner/Partner.js"} className="Header_Button-About" onClick={closeMenu}>
+              {PARTNER_STRINGS.nav_link}
+            </Link>
+          )}
+          {language_button(closeMenu)}
           {curr_name === null ? (
             <>
               <Link to={"/Register/Register.js"} className="Header_Button-Register" onClick={closeMenu}>

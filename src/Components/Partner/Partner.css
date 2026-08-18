@@ -1,0 +1,192 @@
+/* Mirrors the Profile page shell exactly — same wrapper, card, radius, shadow
+   and spacing tokens — so the partner area reads as part of the same site. */
+
+#partner_page {
+    width: 100%;
+    min-height: 100vh;
+    background-color: var(--color-bg);
+    padding: var(--space-7) 0 var(--space-8);
+}
+
+#partner_root {
+    width: 95%;
+    max-width: 1100px;
+    padding: var(--space-6);
+    height: fit-content;
+    border-radius: var(--radius-xl);
+    margin: 0px auto;
+    background-color: var(--color-surface);
+    box-shadow: var(--shadow-md);
+    text-align: start;
+}
+
+#partner_head {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-bottom: var(--space-5);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--color-neutral-100);
+}
+
+#partner_business {
+    font-weight: 600;
+    font-size: var(--font-size-lg);
+    color: var(--color-neutral-900);
+}
+
+#partner_type {
+    font-size: var(--font-size-sm);
+    color: var(--color-neutral-500);
+}
+
+.partner_skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+/* tabs — same pill/underline language as the site nav */
+.partner_tabs {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-5);
+}
+
+.partner_tab {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-base);
+    color: var(--color-neutral-700);
+    border-bottom: 2px solid transparent;
+    transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.partner_tab:hover {
+    background-color: var(--color-neutral-100);
+}
+
+.partner_tab_active {
+    color: var(--color-neutral-900);
+    font-weight: 600;
+    border-bottom-color: var(--color-primary);
+}
+
+/* dashboard tiles */
+.partner_stat_grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: var(--space-4);
+}
+
+.partner_stat {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    align-items: flex-start;
+}
+
+.partner_stat_value {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    color: var(--color-secondary-dark);
+}
+
+.partner_stat_label {
+    font-size: var(--font-size-sm);
+    color: var(--color-neutral-500);
+}
+
+.partner_section_head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-4);
+}
+
+.partner_section_title {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--color-neutral-900);
+}
+
+/* same table treatment as the profile bookings table */
+.partner_table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--font-size-sm);
+}
+
+.partner_table th {
+    padding: var(--space-3);
+    text-align: start;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    color: var(--color-neutral-700);
+    background-color: var(--color-neutral-100);
+}
+
+.partner_table td {
+    padding: var(--space-3);
+    color: var(--color-neutral-900);
+    border-top: 1px solid var(--color-neutral-100);
+}
+
+.partner_row_actions {
+    display: flex;
+    gap: var(--space-2);
+    white-space: nowrap;
+}
+
+/* forms */
+.partner_register,
+.partner_form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    text-align: start;
+}
+
+.partner_register_intro {
+    font-size: var(--font-size-sm);
+    color: var(--color-neutral-700);
+    margin-bottom: var(--space-2);
+}
+
+.partner_select {
+    width: 100%;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-surface);
+    color: var(--color-neutral-900);
+    font-size: var(--font-size-sm);
+}
+
+.partner_select:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 1px;
+}
+
+.partner_error {
+    font-size: var(--font-size-sm);
+    color: var(--color-error);
+}
+
+.partner_form_actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-2);
+    width: 100%;
+}

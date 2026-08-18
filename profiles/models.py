@@ -4,6 +4,18 @@ import os
 from django.dispatch import receiver
 from django.utils import timezone
 
+# FR-46 roles. `is_staff` still governs Django admin and Jazzmin access — this
+# field sits alongside it and describes what the account is for on the site.
+ROLE_CUSTOMER = 'customer'
+ROLE_PARTNER = 'partner'
+ROLE_ADMIN = 'admin'
+USER_ROLES = [
+    (ROLE_CUSTOMER, 'Customer'),
+    (ROLE_PARTNER, 'Partner'),
+    (ROLE_ADMIN, 'Admin'),
+]
+
+
 class Profile(models.Model):
    
  username =models.CharField(max_length=255 ,primary_key=True )
@@ -17,6 +29,12 @@ class Profile(models.Model):
  country = models.CharField(max_length=255,blank=True, null =True)
  birth_date = models.DateField(blank=True, null =True)
  bio =models.TextField(blank=True, null =True)
+
+ # FR-46. Blank-able so the admin form stays optional; the default carries.
+ role = models.CharField(
+   max_length=10, choices=USER_ROLES, default=ROLE_CUSTOMER, blank=True,
+   verbose_name='role',
+ )
  
  class Meta:
    verbose_name = 'Profile'

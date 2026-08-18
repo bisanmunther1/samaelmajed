@@ -1,6 +1,13 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import StarRating from './StarRating';
 
+// FR-44 puts a real `dir` on <html>, which StarRating now inherits. These
+// tests describe LTR behaviour, so they state that rather than relying on
+// whatever the document happens to be set to.
+beforeEach(() => {
+  document.documentElement.setAttribute('dir', 'ltr');
+});
+
 test('renders a read-only rating as an image with the value in its label', () => {
   render(<StarRating value={4} />);
 

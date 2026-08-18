@@ -4,7 +4,7 @@ import Button from "../ui/Button/Button";
 import Card from "../ui/Card/Card";
 import Input from "../ui/Input/Input";
 import StarRating from "../Reviews/StarRating";
-import { FILTER_STRINGS, SORT_OPTIONS } from "./strings";
+import { FILTER_STRINGS, sort_options } from "./strings";
 import "./FilterBar.css";
 
 const API_BASE = "http://127.0.0.1:8000";
@@ -63,7 +63,7 @@ export default function FilterBar({ filters, onChange, onReset, hasActiveFilters
   const min_rating = filters.min_rating ? Number(filters.min_rating) : 0;
 
   return (
-    <Card className="filter-bar" dir="rtl">
+    <Card className="filter-bar">
       <div className="filter-bar-head">
         <h3 className="filter-bar-title">{FILTER_STRINGS.title}</h3>
         <span className="filter-bar-count">{FILTER_STRINGS.results_count(resultCount)}</span>
@@ -155,7 +155,7 @@ export default function FilterBar({ filters, onChange, onReset, hasActiveFilters
             value={filters.ordering}
             onChange={(event) => onChange("ordering", event.target.value)}
           >
-            {SORT_OPTIONS.map((option) => (
+            {sort_options().map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>

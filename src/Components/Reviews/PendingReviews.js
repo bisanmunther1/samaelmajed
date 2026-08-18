@@ -79,7 +79,7 @@ export default function PendingReviews() {
   }));
 
   return (
-    <Card className="pending-reviews" dir="rtl">
+    <Card className="pending-reviews">
       <div className="pending-reviews-head">
         <h3 className="pending-reviews-title">{REVIEW_STRINGS.pending_title}</h3>
         <p className="pending-reviews-hint">{REVIEW_STRINGS.pending_hint}</p>
@@ -114,7 +114,7 @@ export default function PendingReviews() {
         title={active ? `${active.label} — ${active.targetName}` : ""}
       >
         {active && (
-          <div dir="rtl">
+          <div>
             <ReviewForm
               booking={active.booking}
               targetType={active.targetType}

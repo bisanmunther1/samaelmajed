@@ -55,6 +55,13 @@ class Trips(models.Model):
         help_text='Leave empty for the default of 30.',
     )
 
+    # FR-46. NULL means the platform owns this trip: it stays admin-managed and
+    # no partner can reach it. Declared by label because partners imports trips.
+    partner = models.ForeignKey(
+        'partners.Partner', null=True, blank=True, on_delete=models.SET_NULL,
+        related_name='trips', verbose_name='owning partner',
+    )
+
     def __str__(self):
         return self.name
 

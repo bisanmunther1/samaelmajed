@@ -81,7 +81,7 @@ export default function CancelBookingDialog({ booking, isOpen, onClose, onCancel
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={BOOKING_STRINGS.cancel_title} footer={footer}>
-      <div className="cancel-dialog" dir="rtl">
+      <div className="cancel-dialog">
         {status === "loading" && (
           <div className="cancel-dialog-skeleton">
             <Skeleton height="18px" width="60%" />

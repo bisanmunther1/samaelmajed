@@ -89,7 +89,7 @@
   background-size: cover;
   border-radius: var(--radius-xl);
 
-   margin-left:auto ;
+   margin-inline-start:auto ;
   margin-top: var(--space-8);
   margin-bottom: var(--space-8);
   animation-name: rotate;

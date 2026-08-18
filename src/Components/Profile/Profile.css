@@ -100,7 +100,7 @@
 .profile_info_value{
     font-size: var(--font-size-base);
     color: var(--color-neutral-900);
-    text-align: right;
+    text-align: end;
 }
 
 .profile_bio_row{
@@ -149,7 +149,7 @@
     padding: var(--space-3) var(--space-3);
     position: sticky;
     top: 0;
-    text-align: left;
+    text-align: start;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     font-size: var(--font-size-xs);
@@ -186,7 +186,7 @@
         grid-template-columns: 1fr;
     }
     .profile_info_value{
-        text-align: left;
+        text-align: start;
     }
 }
 

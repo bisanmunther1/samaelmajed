@@ -79,7 +79,7 @@ export default function ReviewsSection({ targetType, targetId }) {
   if (!targetId) return null;
 
   return (
-    <section className="reviews-section" dir="rtl">
+    <section className="reviews-section">
       <h3 className="reviews-section-title">{REVIEW_STRINGS.section_title}</h3>
 
       <Card className="reviews-section-card">

@@ -22,6 +22,13 @@ class AdminAwareTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['username'] = user.username
         token['is_staff'] = user.is_staff
         token['is_superuser'] = user.is_superuser
+
+        # FR-46. Convenience only — the claim is never the authority. Every
+        # partner endpoint re-derives the role from the database.
+        profile = getattr(user, 'profile', None)
+        token['role'] = profile.role if profile is not None else (
+            'admin' if user.is_staff else 'customer'
+        )
         return token
 
 

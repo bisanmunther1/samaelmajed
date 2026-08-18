@@ -46,7 +46,7 @@
     text-decoration: none;
     color: var(--color-primary);
     font-weight: 600;
-    margin-left: var(--space-1);
+    margin-inline-start: var(--space-1);
 }
 
 .error {

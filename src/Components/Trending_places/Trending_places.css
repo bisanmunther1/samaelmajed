@@ -107,7 +107,7 @@
  font-size:50px;
  width:38%;
  font-style:italic;
-  margin-left:5px;
+  margin-inline-start:5px;
   text-align:center;
   display:flex;
   justify-content:center;
