@@ -13,6 +13,7 @@ TARGET_AMBIGUOUS = 'target_ambiguous'
 TARGET_MISMATCH = 'target_mismatch'
 BOOKING_NOT_OWNED = 'booking_not_owned'
 BOOKING_NOT_COMPLETED = 'booking_not_completed'
+BOOKING_CANCELLED = 'booking_cancelled'
 TRIP_NOT_FINISHED = 'trip_not_finished'
 HOTEL_STAY_NOT_FINISHED = 'hotel_stay_not_finished'
 DUPLICATE_TRIP_REVIEW = 'duplicate_trip_review'
@@ -28,6 +29,7 @@ MESSAGES = {
     TARGET_MISMATCH: 'العنصر الذي تحاول تقييمه لا يطابق الحجز المحدد.',
     BOOKING_NOT_OWNED: 'هذا الحجز لا يخصّك، لا يمكنك تقييمه.',
     BOOKING_NOT_COMPLETED: 'لا يمكن التقييم قبل إتمام دفع الحجز.',
+    BOOKING_CANCELLED: 'لا يمكن تقييم حجز تم إلغاؤه.',
     TRIP_NOT_FINISHED: 'لا يمكنك تقييم الرحلة قبل انتهائها.',
     HOTEL_STAY_NOT_FINISHED: 'لا يمكنك تقييم الفندق قبل انتهاء إقامتك.',
     DUPLICATE_TRIP_REVIEW: 'لقد قمت بتقييم هذه الرحلة مسبقاً.',

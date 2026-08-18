@@ -7,7 +7,7 @@ from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 
-from profiles.models import Trip_per_user
+from profiles.models import STATUS_CANCELLED, Trip_per_user
 
 from . import errors
 from .errors import find_coded_error
@@ -111,6 +111,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
         bookings = list(
             Trip_per_user.objects
             .filter(username__user=request.user, is_paid=True)
+            .exclude(status=STATUS_CANCELLED)
             .select_related('trip', 'hotel')
             .order_by('-trip_date', '-pk')
         )

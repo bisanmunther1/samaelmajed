@@ -44,6 +44,23 @@ def dell(sender , instance , using ,  **kwargs):
 # sentinel, not a hotel name — never resolve it against the Hotels catalogue.
 NO_HOTEL_SENTINEL = 'no_name'
 
+# FR-40 booking lifecycle.
+STATUS_CONFIRMED = 'confirmed'
+STATUS_CANCELLED = 'cancelled'
+BOOKING_STATUSES = [
+    (STATUS_CONFIRMED, 'Confirmed'),
+    (STATUS_CANCELLED, 'Cancelled'),
+]
+
+REFUND_NOT_APPLICABLE = 'not_applicable'
+REFUND_PENDING = 'pending'
+REFUND_COMPLETED = 'completed'
+REFUND_STATUSES = [
+    (REFUND_NOT_APPLICABLE, 'Not applicable'),
+    (REFUND_PENDING, 'Pending'),
+    (REFUND_COMPLETED, 'Completed'),
+]
+
 
 class Trip_per_user(models.Model):
    username = models.ForeignKey(Profile, verbose_name="username", on_delete=models.CASCADE,max_length=255 )
@@ -79,6 +96,51 @@ class Trip_per_user(models.Model):
    # persists a payment result yet; confirmation is a manual admin step until
    # FR-40 wires a real capture handler.
    is_paid = models.BooleanField(default=True, verbose_name='Paid / completed')
+
+   # FR-45. `price` stays what the customer actually owes, so every existing
+   # reader keeps working; these record how it got there.
+   #
+   # `original_price` is null on rows that predate promo codes — for those,
+   # `price` is the original. The promo_code relation is declared by label
+   # because promotions.models imports this module, so profiles cannot import
+   # promotions back at module level.
+   original_price = models.DecimalField(
+       max_digits=6, decimal_places=2, null=True, blank=True,
+       verbose_name='price before discount',
+   )
+   discount_amount = models.DecimalField(
+       max_digits=6, decimal_places=2, default=0, verbose_name='discount applied',
+   )
+   promo_code = models.ForeignKey(
+       'promotions.PromoCode', null=True, blank=True, on_delete=models.SET_NULL,
+       related_name='bookings', verbose_name='promo code',
+   )
+
+   # FR-43. Travellers on this booking; it is what gets taken from — and given
+   # back to — the departure's seat pool. Existing rows are single-traveller.
+   seats = models.PositiveIntegerField(default=1, verbose_name='travellers')
+
+   # FR-40. Cancelled bookings are kept, not deleted: they stay in the
+   # customer's history and remain the record behind any refund owed.
+   status = models.CharField(
+       max_length=10, choices=BOOKING_STATUSES, default=STATUS_CONFIRMED,
+       verbose_name='status',
+   )
+   cancelled_at = models.DateTimeField(null=True, blank=True, verbose_name='cancelled at')
+   cancellation_reason = models.TextField(blank=True, verbose_name='cancellation reason')
+   refund_amount = models.DecimalField(
+       max_digits=6, decimal_places=2, default=0, verbose_name='refund amount',
+   )
+   # There is no automated refund in this project — see profiles/cancellation.py.
+   # This tracks what an operator still owes the customer.
+   refund_status = models.CharField(
+       max_length=15, choices=REFUND_STATUSES, default=REFUND_NOT_APPLICABLE,
+       verbose_name='refund status',
+   )
+
+   @property
+   def is_cancelled(self):
+     return self.status == STATUS_CANCELLED
 
    class Meta:
      verbose_name = 'Booking'

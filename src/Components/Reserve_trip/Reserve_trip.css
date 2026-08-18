@@ -355,7 +355,8 @@
     margin-bottom: var(--space-3);
 }
 
-#reserve_summary_rows {
+#reserve_summary_rows,
+.reserve_summary_rows {
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
@@ -425,4 +426,37 @@
     width: 92%;
     height: 50%;
   }
+}
+
+.reserve_summary_discount b {
+  color: var(--color-primary-dark);
+}
+
+/* FR-43 — seat selector in the payment step. */
+#reserve_seats_box {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  padding: var(--space-3);
+  background-color: var(--color-neutral-100);
+  border-radius: var(--radius-md);
+}
+
+.reserve_seats_select {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-neutral-300);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+  font-size: var(--font-size-sm);
+}
+
+.reserve_seats_hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-neutral-500);
+}
+
+.reserve_seats_soldout {
+  font-weight: 700;
+  color: var(--color-error);
 }

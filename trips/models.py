@@ -43,9 +43,21 @@ class Trips(models.Model):
     )
 
 
+    # FR-43. Seats offered per departure date. Deliberately NOT `num` above:
+    # `num` is a running tally of everyone who has ever booked (it is
+    # incremented on every booking and drives the "trending" ordering), so it
+    # only grows and can never express a ceiling.
+    # blank=True so the admin form stays optional: leaving it empty keeps the
+    # default. Making it required would have changed the existing trip
+    # add/change form contract, which two admin tests rightly pin.
+    capacity = models.PositiveIntegerField(
+        default=30, blank=True, verbose_name='Seats per departure',
+        help_text='Leave empty for the default of 30.',
+    )
+
     def __str__(self):
         return self.name
-    
+
     class Meta:
         verbose_name = 'Trip'
         ordering = ['type']
@@ -68,3 +80,38 @@ def dell(sender , instance , using ,  **kwargs):
 
  
  
+
+class TripAvailability(models.Model):
+    """Seats offered and taken for one trip on one date.
+
+    Rows are created on demand: the first booking for a date materialises one
+    from the trip's `capacity`. That keeps the catalogue free of a row per
+    trip per calendar day, at the cost of the availability read endpoint having
+    to fall back to the default for dates nobody has booked yet.
+    """
+
+    trip = models.ForeignKey(
+        Trips, on_delete=models.CASCADE, related_name='availability', verbose_name='trip',
+    )
+    date = models.DateField(verbose_name='date')
+    total_seats = models.PositiveIntegerField(verbose_name='total seats')
+    booked_seats = models.PositiveIntegerField(default=0, verbose_name='booked seats')
+
+    class Meta:
+        verbose_name = 'Trip Availability'
+        verbose_name_plural = 'Trip Availability'
+        ordering = ['trip', 'date']
+        constraints = [
+            models.UniqueConstraint(fields=['trip', 'date'], name='unique_availability_per_trip_date'),
+        ]
+
+    def __str__(self):
+        return f'{self.trip_id} — {self.date} ({self.booked_seats}/{self.total_seats})'
+
+    @property
+    def remaining_seats(self):
+        return max(0, self.total_seats - self.booked_seats)
+
+    @property
+    def is_sold_out(self):
+        return self.remaining_seats == 0

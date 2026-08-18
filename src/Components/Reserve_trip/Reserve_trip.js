@@ -13,6 +13,10 @@ import Input from "../ui/Input/Input";
 import Skeleton from "../ui/Skeleton/Skeleton";
 import ErrorState from "../ui/ErrorState/ErrorState";
 import ReviewsSection from "../Reviews/ReviewsSection";
+import PromoCodeInput from "../Promotions/PromoCodeInput";
+import { PROMO_STRINGS } from "../Promotions/strings";
+import { fetch_trip_availability } from "../Bookings/bookingsApi";
+import { BOOKING_STRINGS } from "../Bookings/strings";
 
 const STEPS = [
   { id: 1, label: "Transport" },
@@ -44,6 +48,10 @@ export default function Reserve_trip() {
   const submitting_lock_ref = useRef(false);
   const [lightbox_image, set_lightbox_image] = useState(null);
   const [retry_key, set_retry_key] = useState(0);
+
+  // FR-43. Seats wanted, and what the departure has left.
+  const [seats, set_seats] = useState(1);
+  const [availability, set_availability] = useState(null); // { remaining_seats, is_sold_out }
 
   // fetch trip features whenever a new trip is opened
   useEffect(() => {
@@ -110,6 +118,31 @@ export default function Reserve_trip() {
     }
   }, [features]);
 
+  // Remaining seats for today's departure — the date the booking is created
+  // for. Public endpoint, so no token juggling here.
+  useEffect(() => {
+    if (!tripName) return undefined;
+    let cancelled = false;
+
+    set_availability(null);
+    set_seats(1);
+
+    const departure = today_iso();
+    fetch_trip_availability({ tripName, from: departure, to: departure })
+      .then((data) => {
+        if (cancelled) return;
+        set_availability((data.days && data.days[0]) || null);
+      })
+      .catch(() => {
+        // Availability is advisory in the UI; the server enforces it either
+        // way, so a failure here must not block the flow.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [tripName, retry_key]);
+
   // hotel prices, once trip features have loaded
   useEffect(() => {
     if (!tripName || features_status !== "success") return;
@@ -139,14 +172,24 @@ export default function Reserve_trip() {
 
   const total_price = selected_transport.price + (selected_hotel ? selected_hotel.price : 0);
 
+  // The server's quote for an applied promo code, or null. The booking endpoint
+  // re-prices from scratch, so this only ever drives what is displayed.
+  const [applied_promo, set_applied_promo] = useState(null);
+
+  const discount_amount = applied_promo ? Number(applied_promo.discount_amount) : 0;
+  const payable_price = Math.max(0, total_price - discount_amount);
+
   function handle_transport_change(kind, index, price, name) {
     set_selected_transport({ kind, index, price, name: name || null });
     if (ready_to_pay) set_ready_to_pay(false);
+    // The quote was priced against the old total; make them re-apply.
+    set_applied_promo(null);
   }
 
   function handle_hotel_change(hotel) {
     set_selected_hotel(hotel);
     if (ready_to_pay) set_ready_to_pay(false);
+    set_applied_promo(null);
   }
 
   function account_check() {
@@ -189,7 +232,12 @@ export default function Reserve_trip() {
       trip_name: tripName,
       hotel_name: selected_hotel ? selected_hotel.name : "no_name",
       hotel_reserve_date: selected_hotel ? hotel_reserve_date : "",
+      seats: seats,
     };
+
+    // Only the code travels — the server decides what it is worth. Omitted
+    // entirely when unused, so an ordinary booking request is unchanged.
+    if (applied_promo) payload.promo_code = applied_promo.code;
 
     try {
       await axios.post("http://127.0.0.1:8000/profile/update_profile/", payload);
@@ -259,7 +307,7 @@ export default function Reserve_trip() {
           Back
         </Button>
         <div id="reserve_footer_total">
-          Total <b>{total_price}$</b>
+          Total <b>{payable_price}$</b>
         </div>
         {step < 3 ? (
           <Button variant="secondary" size="sm" onClick={() => set_step((s) => Math.min(3, s + 1))}>
@@ -444,11 +492,60 @@ export default function Reserve_trip() {
                     <b>{selected_hotel ? selected_hotel.price : 0}$</b>
                   </div>
                 </div>
+                {applied_promo && (
+                  <div className="reserve_summary_rows">
+                    <div className="reserve_summary_row">
+                      <span>{PROMO_STRINGS.summary_original}</span>
+                      <b>{total_price}$</b>
+                    </div>
+                    <div className="reserve_summary_row reserve_summary_discount">
+                      <span>{PROMO_STRINGS.summary_discount}</span>
+                      <b>-{discount_amount}$</b>
+                    </div>
+                  </div>
+                )}
+
                 <div id="reserve_summary_total">
-                  <span>Total</span>
-                  <span>{total_price}$</span>
+                  <span>{applied_promo ? PROMO_STRINGS.summary_final : "Total"}</span>
+                  <span>{payable_price}$</span>
                 </div>
               </div>
+
+              <div id="reserve_seats_box" dir="rtl">
+                <label className="ui-field-label" htmlFor="reserve_seats">
+                  {BOOKING_STRINGS.seats_label}
+                </label>
+
+                {availability === null ? (
+                  <span className="reserve_seats_hint">{BOOKING_STRINGS.seats_loading}</span>
+                ) : availability.is_sold_out ? (
+                  <span className="reserve_seats_soldout">{BOOKING_STRINGS.seats_sold_out}</span>
+                ) : (
+                  <>
+                    <select
+                      id="reserve_seats"
+                      className="reserve_seats_select"
+                      value={seats}
+                      onChange={(e) => set_seats(Number(e.target.value))}
+                    >
+                      {Array.from({ length: availability.remaining_seats }, (_, i) => i + 1).map((count) => (
+                        <option key={count} value={count}>{count}</option>
+                      ))}
+                    </select>
+                    <span className="reserve_seats_hint">
+                      {BOOKING_STRINGS.seats_remaining(availability.remaining_seats)}
+                    </span>
+                  </>
+                )}
+              </div>
+
+              <PromoCodeInput
+                tripName={tripName}
+                amount={total_price}
+                applied={applied_promo}
+                onApplied={set_applied_promo}
+                onRemoved={() => set_applied_promo(null)}
+              />
 
               {total_price > 0 && ready_to_pay ? (
                 <Paypal total_price={total_price} />

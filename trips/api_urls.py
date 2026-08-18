@@ -7,4 +7,5 @@ from . import views
 
 urlpatterns = [
     path('filter-options/', views.filter_options, name='trip-filter-options'),
+    path('<str:name>/availability/', views.trip_availability, name='trip-availability'),
 ]

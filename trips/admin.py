@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Trips  
+from .models import TripAvailability, Trips
 
 
 #admin.site.register(Trips)
@@ -24,3 +24,20 @@ class Search(admin.ModelAdmin):
 
 
 admin.site.register(Trips,Search)
+
+@admin.register(TripAvailability)
+class TripAvailabilityAdmin(admin.ModelAdmin):
+    list_display = ['trip', 'date', 'total_seats', 'booked_seats', 'remaining_seats']
+    list_editable = ['total_seats']
+    list_filter = ['trip', 'date']
+    search_fields = ['trip__name']
+    date_hierarchy = 'date'
+    ordering = ['trip', 'date']
+    list_select_related = ['trip']
+    # Maintained by the booking and cancellation flows; editing it by hand
+    # would desync the seat pool from the bookings that justify it.
+    readonly_fields = ['booked_seats']
+
+    @admin.display(description='remaining')
+    def remaining_seats(self, availability):
+        return availability.remaining_seats

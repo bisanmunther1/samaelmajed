@@ -1,0 +1,55 @@
+.cancel-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  text-align: start;
+}
+
+.cancel-dialog-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.cancel-dialog-refund {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background-color: var(--color-primary-light);
+  border-radius: var(--radius-md);
+}
+
+.cancel-dialog-refund-label {
+  font-weight: 600;
+  color: var(--color-neutral-700);
+}
+
+.cancel-dialog-refund-amount {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+
+.cancel-dialog-tier {
+  font-size: var(--font-size-sm);
+  color: var(--color-neutral-700);
+}
+
+.cancel-dialog-days {
+  font-size: var(--font-size-xs);
+  color: var(--color-neutral-500);
+}
+
+.cancel-dialog-error {
+  font-size: var(--font-size-sm);
+  color: var(--color-error);
+}
+
+.cancel-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  width: 100%;
+}

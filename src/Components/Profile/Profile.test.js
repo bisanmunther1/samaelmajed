@@ -69,3 +69,45 @@ test('shows an error state with retry when the profile fails to load', async () 
 
   expect(await screen.findByText('Recovered')).toBeInTheDocument();
 });
+
+test('a cancelled booking is marked and shows its refund status', async () => {
+  mockBoth({ first_name: 'Ana' }, [
+    {
+      id: 2, trip_name: 'Aswan Trip', trip_date: '2026-01-01', price: 200,
+      hotel_name: null, hotel_reserve_date: null,
+      status: 'cancelled', refund_amount: '100.00', refund_status: 'pending',
+    },
+  ]);
+  renderProfile();
+
+  expect(await screen.findByText('ملغى')).toBeInTheDocument();
+  expect(screen.getByText(/الاسترداد قيد المعالجة/)).toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'إلغاء الحجز' })).not.toBeInTheDocument();
+});
+
+test('an upcoming confirmed booking offers a cancel button', async () => {
+  mockBoth({ first_name: 'Ana' }, [
+    {
+      id: 3, trip_name: 'Cairo Trip', trip_date: '2099-01-01', price: 200,
+      hotel_name: null, hotel_reserve_date: null,
+      status: 'confirmed', refund_amount: '0.00', refund_status: 'not_applicable',
+    },
+  ]);
+  renderProfile();
+
+  expect(await screen.findByRole('button', { name: 'إلغاء الحجز' })).toBeInTheDocument();
+});
+
+test('a departed booking offers no cancel button', async () => {
+  mockBoth({ first_name: 'Ana' }, [
+    {
+      id: 4, trip_name: 'Past Trip', trip_date: '2020-01-01', price: 200,
+      hotel_name: null, hotel_reserve_date: null,
+      status: 'confirmed', refund_amount: '0.00', refund_status: 'not_applicable',
+    },
+  ]);
+  renderProfile();
+
+  expect(await screen.findByText('Past Trip')).toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'إلغاء الحجز' })).not.toBeInTheDocument();
+});

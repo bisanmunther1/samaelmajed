@@ -189,3 +189,29 @@
         text-align: left;
     }
 }
+
+/* FR-40 — cancelled bookings stay in the history, visibly struck through. */
+.profile_booking_cancelled td {
+  opacity: 0.6;
+}
+
+.profile_booking_badge {
+  display: inline-block;
+  margin-inline-start: var(--space-2);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-error);
+  color: #fff;
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+}
+
+.profile_booking_refund {
+  font-size: var(--font-size-xs);
+  color: var(--color-neutral-700);
+  white-space: nowrap;
+}
+
+.profile_booking_action {
+  white-space: nowrap;
+}

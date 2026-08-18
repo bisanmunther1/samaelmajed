@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'statistics_report',
     'admin_api',
     'reviews',
+    'promotions',
 
 
 ]
@@ -286,7 +287,7 @@ JAZZMIN_SETTINGS = {
     # Business models first (primary section), framework-level apps last
     # (secondary section, visually de-emphasized by jazzmin_custom.js/.css).
     "order_with_respect_to": [
-        "trips", "hotels", "trip_features", "profiles", "reviews", "statistics",
+        "trips", "hotels", "trip_features", "profiles", "reviews", "promotions", "statistics",
         "profiles.profile", "profiles.trip_per_user",
         "auth", "token_blacklist",
     ],
@@ -307,12 +308,16 @@ JAZZMIN_SETTINGS = {
     "icons": {
         # Business apps (primary section)
         "trips": "fas fa-plane-departure",
+        "trips.tripavailability": "fas fa-calendar-check",
         "hotels": "fas fa-hotel",
         "trip_features": "fas fa-route",
         "profiles": "fas fa-user-circle",
         "profiles.profile": "fas fa-id-card",
         "profiles.trip_per_user": "fas fa-ticket",
         "reviews": "fas fa-star",
+        "promotions": "fas fa-tags",
+        "promotions.promocode": "fas fa-ticket-simple",
+        "promotions.promocodeusage": "fas fa-receipt",
         "reviews.review": "fas fa-star-half-stroke",
         # Framework apps (secondary section)
         "auth": "fas fa-users-cog",

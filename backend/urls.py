@@ -34,6 +34,8 @@ urlpatterns = [
     path('admin-api/', include('admin_api.urls')),
     path('api/reviews/', include('reviews.urls')),
     path('api/trips/', include('trips.api_urls')),
+    path('api/promotions/', include('promotions.urls')),
+    path('api/bookings/', include('profiles.api_urls')),
 
     path('token/',jwt_views.TokenObtainPairView.as_view(), 
           name ='token_obtain_pair'),

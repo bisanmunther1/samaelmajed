@@ -1,6 +1,6 @@
 from django.db.models import Count, Q
 
-from profiles.models import Profile, Trip_per_user
+from profiles.models import STATUS_CANCELLED, Profile, Trip_per_user
 from trip_features.models import Trip_features
 
 
@@ -15,7 +15,11 @@ def _rename(rows, source_key, output_key):
 
 def build_statistics(start_date=None, end_date=None):
 
-    bookings = Trip_per_user.objects.all()
+    # FR-40: a cancelled booking is not business that happened. Excluded once,
+    # here, because every booking figure below derives from this queryset —
+    # totals, most-booked trips, over-time, destination, hotel and transport.
+    # (There is no revenue aggregation in this module; it reports counts only.)
+    bookings = Trip_per_user.objects.exclude(status=STATUS_CANCELLED)
     if start_date:
         bookings = bookings.filter(trip_date__gte=start_date)
     if end_date:

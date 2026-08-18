@@ -1,0 +1,65 @@
+.promo-box {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background-color: var(--color-neutral-100);
+  border-radius: var(--radius-md);
+  text-align: start;
+}
+
+.promo-row {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+}
+
+.promo-field {
+  flex: 1;
+  min-width: 0;
+}
+
+.promo-error {
+  font-size: var(--font-size-sm);
+  color: var(--color-error);
+}
+
+.promo-box-applied {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  background-color: var(--color-primary-light);
+}
+
+.promo-applied-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.promo-applied-title {
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+
+.promo-applied-description {
+  font-size: var(--font-size-xs);
+  color: var(--color-neutral-700);
+}
+
+.promo-remove {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.promo-remove:hover {
+  text-decoration: underline;
+}

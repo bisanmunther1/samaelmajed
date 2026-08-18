@@ -8,6 +8,9 @@ import EmptyState from "../ui/EmptyState/EmptyState";
 import ErrorState from "../ui/ErrorState/ErrorState";
 import Card from "../ui/Card/Card";
 import Avatar from "../ui/Avatar/Avatar";
+import Button from "../ui/Button/Button";
+import CancelBookingDialog from "../Bookings/CancelBookingDialog";
+import { BOOKING_STRINGS, REFUND_STATUS_LABELS } from "../Bookings/strings";
 import PendingReviews from "../Reviews/PendingReviews";
 
 const API_BASE = "http://127.0.0.1:8000";
@@ -23,6 +26,28 @@ export default function Profile() {
   const [bookings, set_bookings] = useState([]);
 
   const [retry_key, set_retry_key] = useState(0);
+
+  // FR-40: which booking the cancel dialog is open for, if any.
+  const [cancelling, set_cancelling] = useState(null);
+
+  // A booking can only be cancelled while it is confirmed and its trip has not
+  // departed; the server re-checks both, this only decides what to offer.
+  function can_cancel(booking) {
+    if (booking["status"] === "cancelled") return false;
+    if (!booking["trip_date"]) return true;
+    return booking["trip_date"] >= new Date().toISOString().substring(0, 10);
+  }
+
+  function apply_cancellation(result) {
+    set_bookings((current) =>
+      current.map((booking) =>
+        booking["id"] === result.booking
+          ? { ...booking, status: result.status, refund_amount: result.refund_amount,
+              refund_status: result.refund_status, cancelled_at: result.cancelled_at }
+          : booking
+      )
+    );
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -162,16 +187,41 @@ export default function Profile() {
                         <th>Price</th>
                         <th>Hotel name</th>
                         <th>hotel reservation date</th>
+                        <th></th>
                       </tr>
                     </thead>
                     <tbody>
                       {[...bookings].reverse().map((booking) => (
-                        <tr key={booking['id']}>
-                          <td>{booking['trip_name']}</td>
+                        <tr
+                          key={booking['id']}
+                          className={booking['status'] === 'cancelled' ? 'profile_booking_cancelled' : ''}
+                        >
+                          <td>
+                            {booking['trip_name']}
+                            {booking['status'] === 'cancelled' && (
+                              <span className="profile_booking_badge">
+                                {BOOKING_STRINGS.status_cancelled}
+                              </span>
+                            )}
+                          </td>
                           <td>{booking['trip_date']}</td>
                           <td>{booking['price']}</td>
                           <td>{booking['hotel_name'] === null ? "—" : booking['hotel_name']}</td>
                           <td>{booking['hotel_reserve_date'] === null ? "—" : booking['hotel_reserve_date']}</td>
+                          <td className="profile_booking_action">
+                            {booking['status'] === 'cancelled' ? (
+                              <span className="profile_booking_refund">
+                                {REFUND_STATUS_LABELS[booking['refund_status']] || ''}
+                                {Number(booking['refund_amount']) > 0 && ` — ${booking['refund_amount']}$`}
+                              </span>
+                            ) : (
+                              can_cancel(booking) && (
+                                <Button variant="ghost" size="sm" onClick={() => set_cancelling(booking)}>
+                                  {BOOKING_STRINGS.cancel_action}
+                                </Button>
+                              )
+                            )}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -183,6 +233,13 @@ export default function Profile() {
         )}
 
       </div>
+
+      <CancelBookingDialog
+        booking={cancelling}
+        isOpen={cancelling !== null}
+        onClose={() => set_cancelling(null)}
+        onCancelled={apply_cancellation}
+      />
     </div>
   );
 }

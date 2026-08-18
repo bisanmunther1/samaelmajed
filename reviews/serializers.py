@@ -131,6 +131,12 @@ class ReviewSerializer(serializers.ModelSerializer):
         if not booking.is_paid:
             raise review_error(errors.BOOKING_NOT_COMPLETED)
 
+        # A cancelled trip was never taken, so there is nothing to review.
+        # Reviews written before a cancellation are deliberately left alone —
+        # deleting somebody's words is not this feature's business.
+        if booking.is_cancelled:
+            raise review_error(errors.BOOKING_CANCELLED)
+
         today = timezone.localdate()
 
         # The duplicate checks below are per target, not per booking: a booking

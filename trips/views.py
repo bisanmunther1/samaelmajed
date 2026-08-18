@@ -1,4 +1,9 @@
+from datetime import timedelta
+
 from django.db.models import Max, Min
+from django.utils import timezone
+from django.utils.dateparse import parse_date
+
 from .models import Trips
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -80,3 +85,58 @@ def filter_options(request):
         'min_price': bounds['min_price'] if bounds['min_price'] is not None else 0,
         'max_price': bounds['max_price'] if bounds['max_price'] is not None else 0,
     }, status =200)
+
+
+# How far ahead the availability endpoint looks when no range is given, and the
+# widest span it will answer in one call.
+DEFAULT_AVAILABILITY_DAYS = 30
+MAX_AVAILABILITY_DAYS = 180
+
+
+@api_view(['GET'])
+def trip_availability(request, name):
+    """Remaining seats per date for one trip.
+
+    Dates nobody has booked yet have no row, so they report the trip's default
+    capacity rather than being absent — the caller gets a continuous calendar.
+    """
+    trip = Trips.objects.filter(name=name).first()
+    if trip is None:
+        return Response(
+            {'detail': 'الرحلة المطلوبة غير موجودة.', 'code': 'trip_not_found'}, status=404,
+        )
+
+    today = timezone.localdate()
+
+    start = parse_date(request.query_params.get('from') or '') or today
+    end = parse_date(request.query_params.get('to') or '') or (start + timedelta(days=DEFAULT_AVAILABILITY_DAYS))
+
+    if end < start:
+        return Response(
+            {'detail': 'نطاق التاريخ غير صحيح.', 'code': 'invalid_date_range'}, status=400,
+        )
+
+    span = (end - start).days
+    if span > MAX_AVAILABILITY_DAYS:
+        end = start + timedelta(days=MAX_AVAILABILITY_DAYS)
+
+    # One query for the dates that exist; the rest fall back to capacity.
+    booked = {
+        row.date: row
+        for row in trip.availability.filter(date__gte=start, date__lte=end)
+    }
+
+    days = []
+    cursor = start
+    while cursor <= end:
+        row = booked.get(cursor)
+        remaining = row.remaining_seats if row is not None else trip.capacity
+        days.append({
+            'date': cursor,
+            'total_seats': row.total_seats if row is not None else trip.capacity,
+            'remaining_seats': remaining,
+            'is_sold_out': remaining == 0,
+        })
+        cursor += timedelta(days=1)
+
+    return Response({'trip': trip.name, 'capacity': trip.capacity, 'days': days}, status=200)
