@@ -1,0 +1,297 @@
+/* Operations dashboard.
+ *
+ * Rides on the tokens already declared in
+ * statistics_report/static/statistics_report/admin_stats.css (--stat-primary,
+ * --stat-neutral-*, --stat-radius-*, --stat-shadow-*, --stat-space-*) and
+ * reuses its .stat-card shell. No new palette: the one colour added here is the
+ * amber warning accent for the attention panel, derived from the rose/gold the
+ * theme already uses for warnings.
+ *
+ * Logical properties throughout, so the whole dashboard mirrors correctly
+ * whether the admin is rendered RTL (default) or LTR.
+ */
+
+.ops-dashboard {
+  --ops-warning: #b45309;
+  --ops-warning-bg: #fff7ed;
+  --ops-warning-border: #f0a92b;
+
+  margin-bottom: var(--stat-space-5);
+}
+
+.ops-group-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--stat-neutral-700);
+  margin: var(--stat-space-5) 0 var(--stat-space-3);
+}
+
+/* ---- KPI cards ---------------------------------------------------------- */
+
+.ops-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--stat-space-4);
+}
+
+.ops-kpi {
+  padding: var(--stat-space-4) var(--stat-space-5);
+  text-align: start;
+}
+
+.ops-kpi-value {
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--stat-secondary-dark);
+}
+
+.ops-kpi-unit {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--stat-neutral-500);
+  margin-inline-start: 4px;
+}
+
+.ops-kpi-label {
+  margin-top: 2px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--stat-neutral-700);
+}
+
+.ops-kpi-sub {
+  margin-top: var(--stat-space-2);
+  font-size: 12px;
+  color: var(--stat-neutral-500);
+}
+
+.ops-trend {
+  font-weight: 700;
+}
+
+.ops-trend.is-up {
+  color: var(--stat-primary-dark);
+}
+
+.ops-trend.is-down {
+  color: var(--stat-error);
+}
+
+/* ---- Attention panel ---------------------------------------------------- */
+/* Deliberately not a .stat-card: it must not read as another KPI tile. */
+
+.ops-attention {
+  background-color: var(--ops-warning-bg);
+  border: 1px solid var(--ops-warning-border);
+  border-inline-start: 4px solid var(--ops-warning-border);
+  border-radius: var(--stat-radius-lg);
+  padding: var(--stat-space-4) var(--stat-space-5);
+  margin-bottom: var(--stat-space-5);
+}
+
+.ops-attention-title {
+  display: flex;
+  align-items: center;
+  gap: var(--stat-space-2);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ops-warning);
+  margin: 0 0 var(--stat-space-3);
+}
+
+.ops-attention-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: var(--ops-warning-border);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.ops-attention-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--stat-space-2);
+}
+
+.ops-attention-row a {
+  display: flex;
+  align-items: center;
+  gap: var(--stat-space-3);
+  padding: var(--stat-space-2) var(--stat-space-3);
+  border-radius: var(--stat-radius-sm);
+  background-color: rgba(255, 255, 255, 0.75);
+  color: var(--stat-neutral-900);
+  text-decoration: none;
+  transition: background-color 150ms ease;
+}
+
+.ops-attention-row a:hover {
+  background-color: #fff;
+}
+
+.ops-attention-count {
+  min-width: 34px;
+  padding: 2px 8px;
+  border-radius: var(--stat-radius-sm);
+  background-color: var(--ops-warning-border);
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  text-align: center;
+}
+
+.ops-attention-label {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ops-attention-note {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ops-warning);
+}
+
+.ops-attention-go {
+  color: var(--stat-neutral-500);
+}
+
+/* ---- Panels and tables -------------------------------------------------- */
+
+.ops-panel {
+  margin-top: var(--stat-space-5);
+  padding: var(--stat-space-5);
+}
+
+.ops-panel-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--stat-neutral-900);
+  margin: 0 0 var(--stat-space-4);
+}
+
+/* Wide tables scroll inside the panel rather than pushing the page sideways. */
+.ops-table-scroll {
+  overflow-x: auto;
+}
+
+.ops-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.ops-table th {
+  padding: var(--stat-space-2) var(--stat-space-3);
+  text-align: start;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--stat-neutral-700);
+  background-color: var(--stat-neutral-100);
+  white-space: nowrap;
+}
+
+.ops-table td {
+  padding: var(--stat-space-3);
+  border-top: 1px solid var(--stat-neutral-100);
+  color: var(--stat-neutral-900);
+  white-space: nowrap;
+}
+
+.ops-table a {
+  color: var(--stat-secondary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.ops-table a:hover {
+  text-decoration: underline;
+}
+
+.ops-bar-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--stat-space-2);
+}
+
+.ops-bar {
+  display: block;
+  width: 90px;
+  height: 6px;
+  border-radius: 999px;
+  background-color: var(--stat-neutral-100);
+  overflow: hidden;
+}
+
+.ops-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background-color: var(--stat-primary);
+}
+
+.ops-bar-fill.is-full {
+  background-color: var(--ops-warning-border);
+}
+
+.ops-bar-value {
+  font-size: 12px;
+  color: var(--stat-neutral-500);
+}
+
+/* ---- Status badges ------------------------------------------------------ */
+
+.ops-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.ops-badge.is-confirmed {
+  background-color: var(--stat-primary-light);
+  color: var(--stat-primary-dark);
+}
+
+.ops-badge.is-cancelled {
+  background-color: #fde8e6;
+  color: var(--stat-error);
+}
+
+.ops-badge.is-unpaid {
+  background-color: var(--ops-warning-bg);
+  color: var(--ops-warning);
+}
+
+.ops-empty {
+  padding: var(--stat-space-5);
+  text-align: center;
+  color: var(--stat-neutral-500);
+  font-size: 13px;
+}
+
+.ops-dashboard-action {
+  margin-top: var(--stat-space-5);
+}
+
+@media (max-width: 640px) {
+  .ops-kpi-value {
+    font-size: 24px;
+  }
+
+  .ops-attention-list {
+    grid-template-columns: 1fr;
+  }
+}

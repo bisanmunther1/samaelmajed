@@ -1,40 +1,200 @@
 {% extends "admin/index.html" %}
-{% load static dashboard_stats %}
+{% load static ops_dashboard %}
 
 {% block extrahead %}
 {{ block.super }}
 <link rel="stylesheet" href="{% static 'statistics_report/admin_stats.css' %}">
+<link rel="stylesheet" href="{% static 'ops_dashboard/ops_dashboard.css' %}">
 {% endblock %}
 
 {% block content %}
-{% get_dashboard_stats as dash %}
-<div class="col-12 stat-dashboard-tiles">
-    <div class="stat-metric-row">
-        <div class="stat-card stat-metric-card">
-            <div class="stat-metric-icon is-primary">&#128203;</div>
-            <div>
-                <div class="stat-metric-label">Bookings this week</div>
-                <div class="stat-metric-value">{{ dash.bookings_this_week }}</div>
-            </div>
-        </div>
-        <div class="stat-card stat-metric-card">
-            <div class="stat-metric-icon is-primary">&#128197;</div>
-            <div>
-                <div class="stat-metric-label">Bookings this month</div>
-                <div class="stat-metric-value">{{ dash.bookings_this_month }}</div>
-            </div>
-        </div>
-        <div class="stat-card stat-metric-card">
-            <div class="stat-metric-icon is-secondary">&#128100;</div>
-            <div>
-                <div class="stat-metric-label">Registered users</div>
-                <div class="stat-metric-value">{{ dash.total_users }}</div>
-            </div>
-        </div>
+{% operations_snapshot as ops %}
+
+<div class="col-12 ops-dashboard" dir="rtl">
+
+  {# ---- Section 2 first: what needs doing outranks what happened ---- #}
+  {% if ops.attention %}
+  <section class="ops-attention" aria-labelledby="ops-attention-title">
+    <h2 class="ops-attention-title" id="ops-attention-title">
+      <span class="ops-attention-mark" aria-hidden="true">!</span>
+      صندوق الإجراءات المطلوبة
+    </h2>
+    <ul class="ops-attention-list">
+      {% for row in ops.attention %}
+      <li class="ops-attention-row">
+        <a href="{{ row.url }}">
+          <span class="ops-attention-count">{{ row.count }}</span>
+          <span class="ops-attention-label">{{ row.label }}</span>
+          {% if row.note %}<span class="ops-attention-note">{{ row.note }}</span>{% endif %}
+          <span class="ops-attention-go" aria-hidden="true">&#8592;</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  {# ---- Section 1: KPI row ---- #}
+  <h2 class="ops-group-title">الحجوزات</h2>
+  <div class="ops-kpi-grid">
+    <div class="stat-card ops-kpi">
+      <div class="ops-kpi-value">{{ ops.bookings.total }}</div>
+      <div class="ops-kpi-label">إجمالي الحجوزات</div>
+      <div class="ops-kpi-sub">{{ ops.bookings.confirmed }} مؤكّدة · {{ ops.bookings.cancelled }} ملغاة</div>
     </div>
+
+    <div class="stat-card ops-kpi">
+      <div class="ops-kpi-value">{{ ops.bookings.this_month }}</div>
+      <div class="ops-kpi-label">حجوزات هذا الشهر</div>
+      <div class="ops-kpi-sub">
+        {% if ops.bookings_change is None %}
+          لا توجد مقارنة بالشهر السابق
+        {% elif ops.bookings_change >= 0 %}
+          <span class="ops-trend is-up">&#9650; {{ ops.bookings_change }}%</span> عن الشهر السابق
+        {% else %}
+          <span class="ops-trend is-down">&#9660; {{ ops.bookings_change }}%</span> عن الشهر السابق
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="stat-card ops-kpi">
+      <div class="ops-kpi-value">{{ ops.bookings.revenue }}<span class="ops-kpi-unit">$</span></div>
+      <div class="ops-kpi-label">إجمالي الإيرادات</div>
+      <div class="ops-kpi-sub">{{ ops.bookings.revenue_this_month }}$ هذا الشهر</div>
+    </div>
+
+    <div class="stat-card ops-kpi">
+      <div class="ops-kpi-value">
+        {% if ops.bookings.average_value %}{{ ops.bookings.average_value|floatformat:2 }}{% else %}0.00{% endif %}<span class="ops-kpi-unit">$</span>
+      </div>
+      <div class="ops-kpi-label">متوسط قيمة الحجز</div>
+    </div>
+  </div>
+
+  <h2 class="ops-group-title">الكتالوج</h2>
+  <div class="ops-kpi-grid">
+    <div class="stat-card ops-kpi">
+      <div class="ops-kpi-value">{{ ops.catalogue.trips_available }}<span class="ops-kpi-unit">/ {{ ops.catalogue.trips_total }}</span></div>
+      <div class="ops-kpi-label">الرحلات المتاحة</div>
+    </div>
+
+    <div class="stat-card ops-kpi">
+      <div class="ops-kpi-value">{{ ops.catalogue.hotels_total }}</div>
+      <div class="ops-kpi-label">الفنادق</div>
+    </div>
+
+    <div class="stat-card ops-kpi">
+      <div class="ops-kpi-value">{{ ops.catalogue.occupancy }}<span class="ops-kpi-unit">%</span></div>
+      <div class="ops-kpi-label">نسبة إشغال المغادرات القادمة</div>
+      <div class="ops-kpi-sub">{{ ops.catalogue.seats_booked }} من {{ ops.catalogue.seats_total }} مقعد</div>
+    </div>
+  </div>
+
+  <h2 class="ops-group-title">المستخدمون والشركاء</h2>
+  <div class="ops-kpi-grid">
+    <div class="stat-card ops-kpi">
+      <div class="ops-kpi-value">{{ ops.people.users_total }}</div>
+      <div class="ops-kpi-label">المستخدمون المسجّلون</div>
+    </div>
+
+    <div class="stat-card ops-kpi">
+      <div class="ops-kpi-value">{{ ops.people.partners_approved }}<span class="ops-kpi-unit">/ {{ ops.people.partners_total }}</span></div>
+      <div class="ops-kpi-label">الشركاء المعتمَدون</div>
+    </div>
+
+    <div class="stat-card ops-kpi">
+      <div class="ops-kpi-value">{{ ops.people.reviews_total }}</div>
+      <div class="ops-kpi-label">التقييمات</div>
+      <div class="ops-kpi-sub">متوسط {{ ops.people.reviews_average }} من 5</div>
+    </div>
+  </div>
+
+  {# ---- Section 3: upcoming departures ---- #}
+  <section class="stat-card ops-panel">
+    <h2 class="ops-panel-title">المغادرات القادمة</h2>
+
+    {% if ops.departures %}
+    <div class="ops-table-scroll">
+      <table class="ops-table">
+        <thead>
+          <tr>
+            <th>الرحلة</th>
+            <th>التاريخ</th>
+            <th>المقاعد</th>
+            <th>الإشغال</th>
+            <th>الإيراد</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in ops.departures %}
+          <tr>
+            <td><a href="{% url 'admin:trips_tripavailability_change' row.id %}">{{ row.trip }}</a></td>
+            <td>{{ row.date }}</td>
+            <td>{{ row.booked }} / {{ row.total }}</td>
+            <td class="ops-bar-cell">
+              <span class="ops-bar" role="img" aria-label="{{ row.occupancy }}%">
+                <span class="ops-bar-fill{% if row.occupancy >= 90 %} is-full{% endif %}"
+                      style="width: {{ row.occupancy }}%"></span>
+              </span>
+              <span class="ops-bar-value">{{ row.occupancy }}%</span>
+            </td>
+            <td>{{ row.revenue }}$</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="ops-empty">لا توجد مغادرات قادمة. أضف سعة للرحلات من صفحة «سعة الرحلات» ليظهر هنا جدول المغادرات.</p>
+    {% endif %}
+  </section>
+
+  {# ---- Section 4: recent bookings ---- #}
+  <section class="stat-card ops-panel">
+    <h2 class="ops-panel-title">أحدث الحجوزات</h2>
+
+    {% if ops.recent_bookings %}
+    <div class="ops-table-scroll">
+      <table class="ops-table">
+        <thead>
+          <tr>
+            <th>المرجع</th>
+            <th>المستخدم</th>
+            <th>الرحلة</th>
+            <th>التاريخ</th>
+            <th>المقاعد</th>
+            <th>المبلغ</th>
+            <th>الحالة</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for booking in ops.recent_bookings %}
+          <tr>
+            <td><a href="{% url 'admin:profiles_trip_per_user_change' booking.pk %}">#{{ booking.pk }}</a></td>
+            <td>{{ booking.username_id }}</td>
+            <td>{{ booking.trip_id|default:"—" }}</td>
+            <td>{{ booking.trip_date|default:"—" }}</td>
+            <td>{{ booking.seats }}</td>
+            <td>{{ booking.price|default:"—" }}$</td>
+            <td>
+              <span class="ops-badge {{ booking|booking_status_class }}">{{ booking|booking_status_label }}</span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="ops-empty">لا توجد حجوزات بعد.</p>
+    {% endif %}
+  </section>
+
+  <div class="ops-dashboard-action">
+    <a href="{% url 'admin-statistics-page' %}" class="stat-btn stat-btn-primary">
+      عرض الإحصائيات الكاملة &#8592;
+    </a>
+  </div>
 </div>
-<div class="col-12 stat-dashboard-action">
-    <a href="{% url 'admin-statistics-page' %}" class="stat-btn stat-btn-primary">View full statistics &rarr;</a>
-</div>
+
 {{ block.super }}
 {% endblock %}

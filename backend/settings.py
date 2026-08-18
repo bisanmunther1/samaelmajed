@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'reviews',
     'promotions',
     'partners',
+    'ops_dashboard',
 
 
 ]
