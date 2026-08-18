@@ -94,6 +94,7 @@ const en = {
   },
 
   reserve: {
+    trip_date: "Departure date",
     step_transport: "Transport",
     step_hotel: "Hotel",
     step_payment: "Payment",

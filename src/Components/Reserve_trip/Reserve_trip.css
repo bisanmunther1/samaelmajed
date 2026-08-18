@@ -433,6 +433,13 @@
 }
 
 /* FR-43 — seat selector in the payment step. */
+.reserve_date_field {
+  /* .ui-field defaults to width:100%, which inside this flex row would push
+     the seat selector onto its own line; sized here to sit inline instead. */
+  width: auto;
+  min-width: 160px;
+}
+
 #reserve_seats_box {
   display: flex;
   align-items: center;

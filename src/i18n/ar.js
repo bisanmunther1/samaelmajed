@@ -95,6 +95,7 @@ const ar = {
   },
 
   reserve: {
+    trip_date: "تاريخ الرحلة",
     step_transport: "المواصلات",
     step_hotel: "الفندق",
     step_payment: "الدفع",

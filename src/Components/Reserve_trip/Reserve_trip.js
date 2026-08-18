@@ -48,6 +48,13 @@ export default function Reserve_trip() {
   const [selected_transport, set_selected_transport] = useState({ kind: "none", index: null, price: 0, name: null });
   const [selected_hotel, set_selected_hotel] = useState(null); // { name, price } | null
   const [hotel_reserve_date, set_hotel_reserve_date] = useState(today_iso());
+  // The departure date this booking is for. Bug fix: this used to be
+  // hardcoded to today everywhere, so a capacity/availability row an admin
+  // configured for a future date was never consulted and never enforced —
+  // every booking silently went through "today" regardless of what the
+  // customer saw or picked. Now it is real state, driving both the
+  // availability check and the booking payload.
+  const [trip_date, set_trip_date] = useState(today_iso());
   const [ready_to_pay, set_ready_to_pay] = useState(false);
   const [submitting, set_submitting] = useState(false);
   const submitting_lock_ref = useRef(false);
@@ -72,6 +79,7 @@ export default function Reserve_trip() {
     set_selected_transport({ kind: "none", index: null, price: 0, name: null });
     set_selected_hotel(null);
     set_hotel_reserve_date(today_iso());
+    set_trip_date(today_iso());
     set_ready_to_pay(false);
     set_lightbox_image(null);
 
@@ -123,17 +131,17 @@ export default function Reserve_trip() {
     }
   }, [features]);
 
-  // Remaining seats for today's departure — the date the booking is created
-  // for. Public endpoint, so no token juggling here.
+  // Remaining seats for the selected departure date. Re-runs whenever the
+  // customer changes the date, so what they see always matches what they are
+  // about to book. Public endpoint, so no token juggling here.
   useEffect(() => {
-    if (!tripName) return undefined;
+    if (!tripName || !trip_date) return undefined;
     let cancelled = false;
 
     set_availability(null);
     set_seats(1);
 
-    const departure = today_iso();
-    fetch_trip_availability({ tripName, from: departure, to: departure })
+    fetch_trip_availability({ tripName, from: trip_date, to: trip_date })
       .then((data) => {
         if (cancelled) return;
         set_availability((data.days && data.days[0]) || null);
@@ -146,7 +154,7 @@ export default function Reserve_trip() {
     return () => {
       cancelled = true;
     };
-  }, [tripName, retry_key]);
+  }, [tripName, trip_date, retry_key]);
 
   // hotel prices, once trip features have loaded
   useEffect(() => {
@@ -197,7 +205,13 @@ export default function Reserve_trip() {
     set_applied_promo(null);
   }
 
-  function account_check() {
+  // Pre-flight checks only — no toast on success here. The old version of
+  // this function fired a "reservation complete" success toast just from
+  // these checks passing, before any request was ever made, so a real
+  // customer saw "booked!" and nothing was ever created. The success message
+  // now only fires once the server actually confirms the booking, in
+  // submit_booking below.
+  function can_submit_booking() {
     const username = localStorage.getItem("username");
 
     if (username === null || username === undefined) {
@@ -208,22 +222,24 @@ export default function Reserve_trip() {
       showToast(RESERVE_STRINGS.need_selection, "error");
       return false;
     }
-    showToast(RESERVE_STRINGS.booked, "success");
+    if (availability && availability.is_sold_out) {
+      showToast(BOOKING_STRINGS.seats_sold_out, "error");
+      return false;
+    }
     return true;
   }
 
-  function ready_to_pay_click() {
-    account_check();
-    // Real payment is not wired up yet, so ready_to_pay intentionally never
-    // flips true here; the Paypal button stays behind that flag until then.
-  }
-
-  async function pay_testing_click() {
+  // The one real booking-submission path, used by both the primary "ready to
+  // pay" action and the dev-only seed button below. There is no working
+  // payment capture in this project (Paypal.js's onApprove never calls the
+  // backend), so this — not a payment confirmation — is what actually creates
+  // the booking; gating it behind a fake "ready_to_pay" flag that never
+  // flipped true silently dropped every real booking a customer attempted.
+  async function submit_booking() {
     if (submitting_lock_ref.current) return;
     submitting_lock_ref.current = true;
 
-    const ok = account_check();
-    if (!ok) {
+    if (!can_submit_booking()) {
       submitting_lock_ref.current = false;
       return;
     }
@@ -233,7 +249,7 @@ export default function Reserve_trip() {
     const payload = {
       username: username,
       price: total_price,
-      trip_date: today_iso(),
+      trip_date: trip_date,
       trip_name: tripName,
       hotel_name: selected_hotel ? selected_hotel.name : "no_name",
       hotel_reserve_date: selected_hotel ? hotel_reserve_date : "",
@@ -246,6 +262,7 @@ export default function Reserve_trip() {
 
     try {
       await axios.post("http://127.0.0.1:8000/profile/update_profile/", payload);
+      showToast(RESERVE_STRINGS.booked, "success");
     } catch (e) {
       console.log("error from trip log", e);
       showToast(RESERVE_STRINGS.booking_error, "error");
@@ -517,6 +534,16 @@ export default function Reserve_trip() {
               </div>
 
               <div id="reserve_seats_box">
+                <Input
+                  type="date"
+                  label={RESERVE_STRINGS.trip_date}
+                  name="trip_date"
+                  containerClassName="reserve_date_field"
+                  min={today_iso()}
+                  value={trip_date}
+                  onChange={(e) => e.target.value.length > 0 && set_trip_date(e.target.value)}
+                />
+
                 <label className="ui-field-label" htmlFor="reserve_seats">
                   {BOOKING_STRINGS.seats_label}
                 </label>
@@ -556,12 +583,15 @@ export default function Reserve_trip() {
                 <Paypal total_price={total_price} />
               ) : (
                 <div id="reserve_payment_actions">
-                  <Button variant="primary" fullWidth onClick={ready_to_pay_click}>
+                  <Button
+                    variant="primary" fullWidth loading={submitting} disabled={submitting}
+                    onClick={submit_booking}
+                  >
                     {RESERVE_STRINGS.ready_to_pay}
                   </Button>
 
                   {process.env.REACT_APP_DEV_TOOLS === "true" && (
-                    <Button variant="ghost" size="sm" fullWidth loading={submitting} onClick={pay_testing_click}>
+                    <Button variant="ghost" size="sm" fullWidth loading={submitting} onClick={submit_booking}>
                       {RESERVE_STRINGS.seed_booking}
                     </Button>
                   )}
