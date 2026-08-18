@@ -106,6 +106,20 @@ class SeatReservationTests(CapacityTestBase):
     def test_a_non_numeric_seat_count_is_rejected(self):
         self.assertEqual(self.book(seats='many').data['code'], 'invalid_seats')
 
+    def test_a_capacity_rejected_booking_does_not_increment_the_visitor_count(self):
+        # `num` (the trip card's visitor tally) is incremented in the same
+        # transaction as the seat reservation, so a capacity rejection must
+        # roll it back along with everything else.
+        self.book(seats=5)  # fills the 5-seat trip
+        self.trip.refresh_from_db()
+        filled_num = self.trip.num
+
+        rejected = self.book(username='companion', seats=1, price=150)
+
+        self.assertEqual(rejected.status_code, 400)
+        self.trip.refresh_from_db()
+        self.assertEqual(self.trip.num, filled_num)
+
 
 class AvailabilityEndpointTests(CapacityTestBase):
 

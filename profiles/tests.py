@@ -140,6 +140,32 @@ class BookingFlowTests(TestCase):
         self.trip.refresh_from_db()
         self.assertEqual(self.trip.num, 6)
 
+    def test_booking_increments_trip_num_by_the_seat_count(self):
+        # `num` is the visitor tally the trip card and trending ordering read.
+        # A 3-seat booking is 3 visitors, not 1 — this used to add a flat 1
+        # regardless of `seats`, silently understating every multi-seat
+        # booking since FR-43 introduced them.
+        self.client.post('/profile/update_profile/', self._payload(seats=3), format='json')
+        self.trip.refresh_from_db()
+        self.assertEqual(self.trip.num, 8)  # started at 5, +3
+
+    def test_a_promo_rejected_booking_does_not_increment_trip_num(self):
+        from promotions.models import PromoCode
+        PromoCode.objects.create(
+            code='DEAD', description='inactive', discount_type='fixed',
+            discount_value=10, is_active=False,
+            valid_from='2020-01-01T00:00:00Z', valid_until='2020-01-02T00:00:00Z',
+        )
+
+        response = self.client.post(
+            '/profile/update_profile/', self._payload(promo_code='DEAD'), format='json',
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.trip.refresh_from_db()
+        self.assertEqual(self.trip.num, 5)  # unchanged — the whole transaction rolled back
+        self.assertFalse(Trip_per_user.objects.filter(username=self.profile).exists())
+
     def test_hotel_only_booking_stores_hotel_fields(self):
         response = self.client.post('/profile/update_profile/', self._payload(
             price=80, hotel_name='Nile Hotel', hotel_reserve_date='2026-02-01',

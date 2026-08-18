@@ -48,6 +48,28 @@ test('renders trip cards once the API responds', async () => {
   expect(await screen.findByText('Cairo Trip')).toBeInTheDocument();
 });
 
+// Regression test: the card's displayed price already came from the server
+// as the discounted `final_price`, but the discount badge itself was never
+// passed through on this grid (only the separate Discount_places carousel
+// wired it up) — so a 20%-off trip silently showed its discounted price with
+// no badge explaining why, while the same trip's badge worked fine elsewhere.
+// This was invisible to TripCard's own unit tests, which only render the
+// component in isolation with explicit props.
+test('shows the discount badge for a discounted trip, matching its displayed price', async () => {
+  axios.post.mockResolvedValueOnce({
+    data: [{
+      name: 'Discounted Trip', img: '/d.jpg', final_price: 80, discount: 20,
+      rate: 4.5, num: 10, place: 'Cairo', desc: 'Nice',
+    }],
+  });
+
+  renderGallery();
+
+  expect(await screen.findByText('Discounted Trip')).toBeInTheDocument();
+  expect(screen.getByText('80')).toBeInTheDocument();
+  expect(screen.getByText('-20%')).toBeInTheDocument();
+});
+
 test('shows an error state with a working retry when the API call fails', async () => {
   axios.post.mockRejectedValueOnce(new Error('network error'));
   renderGallery();

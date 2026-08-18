@@ -162,9 +162,15 @@ class Update_profile_data(APIView):
         except CapacityError as full:
           raise BookingError(errors.NO_SEATS_AVAILABLE, remaining=full.remaining)
 
+        # `num` is the running visitor tally the trip card and the
+        # "trending" ordering read (trips/views.py::trending_places). It has
+        # to move by the seat count, not a flat 1 — a 3-seat booking is 3
+        # visitors, not 1. This line previously always added 1 regardless of
+        # `seats`, so the counter silently understated every multi-seat
+        # booking since FR-43 introduced them.
         old_number = row_trip_update.num
 
-        row_trip_update.num = old_number + 1
+        row_trip_update.num = old_number + seats
 
         row.save()
 

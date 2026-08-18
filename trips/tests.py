@@ -121,6 +121,40 @@ class TrendingPlacesTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, [])
 
+    def test_a_real_booking_moves_the_reported_visitor_count_on_the_next_request(self):
+        # `num` — the field this endpoint orders by — is not itself a
+        # "statistic," but this is the one existing downstream reporting
+        # consumer of it (statistics_report never reads Trips.num: its
+        # most_booked_trips is computed independently from real booking
+        # counts). This proves the fixed counter actually reaches a reader,
+        # not just that the raw field moves in isolation.
+        from profiles.models import Profile, Trip_per_user
+        from django.contrib.auth.models import User
+        from rest_framework.test import APIClient
+
+        quiet_trip = make_trip('Quiet Trip', type='Beach', num=1, price=50)
+        user = User.objects.create_user(username='trend_watcher', password='pass12345')
+        profile = Profile.objects.create(username='trend_watcher', email='t@example.com', user=user)
+
+        client = APIClient()
+
+        def reported_num():
+            rows = client.get('/trips/trending/Beach/').data
+            return next(row['num'] for row in rows if row['name'] == 'Quiet Trip')
+
+        before = reported_num()
+        self.assertEqual(before, 1)
+
+        client.post('/profile/update_profile/', {
+            'username': 'trend_watcher', 'price': 50, 'trip_date': '2026-01-01',
+            'trip_name': 'Quiet Trip', 'hotel_name': 'no_name', 'hotel_reserve_date': '',
+            'seats': 4,
+        }, format='json')
+
+        after = reported_num()
+        self.assertEqual(after, before + 4)
+        self.assertTrue(Trip_per_user.objects.filter(username=profile, trip=quiet_trip).exists())
+
 
 class DiscountedPlacesTests(TestCase):
 
@@ -283,6 +317,17 @@ class AdvancedFilterTests(TestCase):
         self.assertEqual(self.names(self.listing('min_price=100')), {'Mid Aswan', 'Pricey Luxor'})
         self.assertEqual(self.names(self.listing('max_price=100')), {'Cheap Cairo'})
 
+    def test_price_range_bounds_the_discounted_price_a_customer_actually_sees(self):
+        # Listed at 250, but a 60% discount puts what the card shows at 100 --
+        # a "$120 max" filter must catch it even though its list price does not.
+        make_trip('Steeply Discounted', place='Giza', price=250, discount=60,
+                   rate=4.0, type='Beach')
+
+        self.assertIn('Steeply Discounted', self.names(self.listing('max_price=120')))
+        # And a "$150 min" filter must exclude it, since 100 is what it actually costs,
+        # even though its list price of 250 would have cleared that bar.
+        self.assertNotIn('Steeply Discounted', self.names(self.listing('min_price=150')))
+
     def test_min_rating_uses_the_review_aggregate_not_the_editorial_rate(self):
         # Cheap Cairo has editorial rate 3.0 but an average_rating of 2.00.
         self.assertEqual(self.names(self.listing('min_rating=4')), {'Mid Aswan', 'Pricey Luxor'})
@@ -433,6 +478,26 @@ class FinalPriceTests(TestCase):
         response = self.client.post('/trips/send_trip_cards/Beach/', self._body(), format='json')
         row = next(r for r in response.data if r['name'] == 'Discounted Trip')
         self.assertEqual(row['final_price'], Decimal('250'))
+
+    def test_final_price_is_the_one_shared_discount_calculation(self):
+        # There is deliberately no second, independent discount formula for
+        # `final_price` to drift against: /profile/update_profile/ (the
+        # booking endpoint) never reads Trips.price/Trips.discount at all —
+        # it charges whatever the client sends for the transport + hotel the
+        # customer picked (see profiles/tests.py::
+        # test_combined_hotel_and_transport_price_is_stored_as_sent, which
+        # documents that as existing, deliberate, tested behavior). So "the
+        # card matches what checkout charges" is guaranteed here the only way
+        # it can be: by construction, since every endpoint that renders a
+        # card computes final_price through this one function, not a copy of
+        # its arithmetic.
+        from .pricing import compute_final_price
+
+        response = self.client.post('/trips/send_trip_cards/Beach/', self._body(), format='json')
+        row = next(r for r in response.data if r['name'] == 'Discounted Trip')
+
+        trip = Trips.objects.get(pk='Discounted Trip')
+        self.assertEqual(row['final_price'], compute_final_price(trip.price, trip.discount))
 
 
 class CardDataReflectsNewActivityTests(TestCase):

@@ -70,6 +70,7 @@ export default function Trending_places() {
         price={e.final_price}
         rate={e.rate}
         visitors={e.num}
+        discountPercent={e.discount}
         averageRating={e.average_rating}
         reviewsCount={e.reviews_count}
         onSelect={openBooking}

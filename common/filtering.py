@@ -17,6 +17,8 @@ from decimal import Decimal, InvalidOperation
 
 from django.db.models import Q
 
+from trips.pricing import compute_final_price
+
 INVALID_PRICE = 'invalid_price'
 INVALID_PRICE_RANGE = 'invalid_price_range'
 INVALID_RATING = 'invalid_rating'
@@ -100,7 +102,7 @@ def parse_ordering(value, allowed):
     return ordering
 
 
-def _apply_price_range(queryset, params):
+def _parse_price_bounds(params):
     minimum = params.get('min_price')
     maximum = params.get('max_price')
 
@@ -110,12 +112,47 @@ def _apply_price_range(queryset, params):
     if parsed_min is not None and parsed_max is not None and parsed_min > parsed_max:
         raise FilterError(INVALID_PRICE_RANGE)
 
+    return parsed_min, parsed_max
+
+
+def _apply_price_range(queryset, params):
+    """Hotels carry no discount, so the listed `price` is what a customer
+    sees -- filter on it directly."""
+    parsed_min, parsed_max = _parse_price_bounds(params)
+
     if parsed_min is not None:
         queryset = queryset.filter(price__gte=parsed_min)
     if parsed_max is not None:
         queryset = queryset.filter(price__lte=parsed_max)
 
     return queryset
+
+
+def _apply_trip_price_range(queryset, params):
+    """Trips display `final_price` (their `price` after `discount`), so a
+    price filter has to bound the same number the card shows -- not the raw
+    `price` a discount may sit well below. Reuses trips/pricing.py's
+    `compute_final_price` rather than re-deriving the discount math here, so
+    the two can never drift apart.
+    """
+    parsed_min, parsed_max = _parse_price_bounds(params)
+
+    if parsed_min is None and parsed_max is None:
+        return queryset
+
+    matching_names = [
+        trip.name for trip in queryset.only('name', 'price', 'discount')
+        if _within_bounds(compute_final_price(trip.price, trip.discount), parsed_min, parsed_max)
+    ]
+    return queryset.filter(name__in=matching_names)
+
+
+def _within_bounds(value, minimum, maximum):
+    if minimum is not None and value < minimum:
+        return False
+    if maximum is not None and value > maximum:
+        return False
+    return True
 
 
 def _apply_min_rating(queryset, params):
@@ -136,7 +173,7 @@ def apply_trip_filters(queryset, params):
     if not _blank(place):
         queryset = queryset.filter(place=place.strip())
 
-    queryset = _apply_price_range(queryset, params)
+    queryset = _apply_trip_price_range(queryset, params)
     queryset = _apply_min_rating(queryset, params)
 
     available = params.get('available')

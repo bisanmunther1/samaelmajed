@@ -118,6 +118,19 @@ class CancelEndpointTests(CancellationTestBase):
         self.assertEqual(booking.cancellation_reason, 'changed my plans')
         self.assertIsNotNone(booking.cancelled_at)
 
+    def test_cancelling_does_not_decrement_the_visitor_count(self):
+        # `num` (Trips.num, the trip card's visitor tally) is historical: it
+        # records that these seats were once booked, which remains true even
+        # after a cancellation. TripAvailability — not `num` — is what tracks
+        # current occupancy, and that already gets released separately below.
+        booking = self.make_booking(seats=2)
+        Trips.objects.filter(pk=self.trip.pk).update(num=7)
+
+        self.cancel(booking)
+
+        self.trip.refresh_from_db()
+        self.assertEqual(self.trip.num, 7)
+
     def test_a_zero_refund_is_not_marked_pending(self):
         booking = self.make_booking(days_ahead=1)
 

@@ -141,6 +141,7 @@ export default function Photo_beach_city_nature(props) {
           price={e.final_price}
           rate={e.rate}
           visitors={e.num}
+          discountPercent={e.discount}
           description={e.desc}
           averageRating={e.average_rating}
           reviewsCount={e.reviews_count}
