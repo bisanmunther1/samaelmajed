@@ -6,6 +6,7 @@ import Button from '../../ui/Button/Button';
 import Skeleton from '../../ui/Skeleton/Skeleton';
 import ErrorState from '../../ui/ErrorState/ErrorState';
 import { useToast } from '../../ui/Toast/ToastContext';
+import { PROFILE_STRINGS } from '../../../i18n/strings';
 
 const MAX_PHOTO_SIZE = 2 * 1024 * 1024;
 
@@ -82,7 +83,7 @@ export default function Profile_edit_info()
 
     if ( user_photo!== null && user_photo !== undefined && user_photo.size > MAX_PHOTO_SIZE)
     {
-      set_photo_error("The photo size should not exceed 2MB");
+      set_photo_error(PROFILE_STRINGS.photo_too_large);
       return;
     }
 
@@ -107,7 +108,7 @@ export default function Profile_edit_info()
           'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
         }
       });
-      showToast('Your profile was updated successfully.', 'success');
+      showToast(PROFILE_STRINGS.saved, 'success');
     } catch (e) {
       console.log('error in update ', e);
       showToast('Something went wrong updating your profile. Please try again.', 'error');
@@ -120,7 +121,7 @@ export default function Profile_edit_info()
 
   <div id="profile_edit_background">
 
-    <div id='profile_edit_root'><p>Profile Edit </p>
+    <div id='profile_edit_root'><p>{PROFILE_STRINGS.edit_title} </p>
 
       {status === "loading" && (
         <div id="profile_edit_skeleton">
@@ -132,23 +133,23 @@ export default function Profile_edit_info()
       )}
 
       {status === "error" && (
-        <ErrorState message="We couldn't load your profile." onRetry={() => set_retry_key((k) => k + 1)} />
+        <ErrorState message={PROFILE_STRINGS.load_profile_error} onRetry={() => set_retry_key((k) => k + 1)} />
       )}
 
       {status === "success" && (
        <form id="profile_edit_form" onSubmit={submit_info}>
 
         <div id="edit_first_name_div">
-          <Input label="First Name:" name="firstname" value={firstname} onChange={(e)=>set_firstname(e.target.value)}/>
+          <Input label={PROFILE_STRINGS.first_name} name="firstname" value={firstname} onChange={(e)=>set_firstname(e.target.value)}/>
         </div>
 
         <div id="edit_last_name_div">
-          <Input label="Last Name:" name="lastname" value={lastname} onChange={(e)=>set_lastname(e.target.value)} />
+          <Input label={PROFILE_STRINGS.last_name} name="lastname" value={lastname} onChange={(e)=>set_lastname(e.target.value)} />
         </div>
 
         <div id="edit_photo_div" style={{textAlign:'center'}}>
           <Input
-            label="Photo :"
+            label={PROFILE_STRINGS.photo}
             name="photo"
             type="file"
             accept='image/*'
@@ -159,22 +160,22 @@ export default function Profile_edit_info()
         </div>
 
        <div id="edit_country_div">
-          <Input label="Country :" name="country" value={country} onChange={(e)=>set_country(e.target.value)}/>
+          <Input label={PROFILE_STRINGS.country} name="country" value={country} onChange={(e)=>set_country(e.target.value)}/>
         </div>
 
         <div id="edit_phone_div">
-          <Input label="Phone :" name="phone" value={phone} onChange={(e)=>set_phone(e.target.value)} />
+          <Input label={PROFILE_STRINGS.phone} name="phone" value={phone} onChange={(e)=>set_phone(e.target.value)} />
         </div>
 
         <div id="edit_birth_date_div">
-          <Input type="date" label="Birth Date :" name="birth_date" value={birth_date} onChange={(e)=>set_birth_date(e.target.value)} />
+          <Input type="date" label={PROFILE_STRINGS.birth_date} name="birth_date" value={birth_date} onChange={(e)=>set_birth_date(e.target.value)} />
         </div>
 
         <div id="edit_bio_div">
-          <Textarea label="Bio :" name="bio_edit" value={bio} onChange={(e)=>set_bio(e.target.value)}></Textarea>
+          <Textarea label={PROFILE_STRINGS.bio} name="bio_edit" value={bio} onChange={(e)=>set_bio(e.target.value)}></Textarea>
         </div>
 
-        <Button type="submit" loading={submitting}>submit</Button>
+        <Button type="submit" loading={submitting}>{PROFILE_STRINGS.submit}</Button>
         </form>
       )}
      </div>

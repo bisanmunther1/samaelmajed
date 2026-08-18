@@ -4,6 +4,13 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import axios from 'axios';
 import Login from './Login';
+import { set_language } from '../../i18n';
+
+// This suite describes the English rendering, so it pins the language rather
+// than depending on the app default (Arabic).
+beforeEach(() => {
+  set_language('en');
+});
 
 function renderLogin() {
   render(

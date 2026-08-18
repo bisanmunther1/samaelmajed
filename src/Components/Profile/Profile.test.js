@@ -4,6 +4,13 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import axios from 'axios';
 import Profile from './Profile';
+import { set_language } from '../../i18n';
+
+// This suite describes the English rendering, so it pins the language rather
+// than depending on the app default (Arabic).
+beforeEach(() => {
+  set_language('en');
+});
 
 function renderProfile() {
   return render(
@@ -80,9 +87,9 @@ test('a cancelled booking is marked and shows its refund status', async () => {
   ]);
   renderProfile();
 
-  expect(await screen.findByText('ملغى')).toBeInTheDocument();
-  expect(screen.getByText(/الاسترداد قيد المعالجة/)).toBeInTheDocument();
-  expect(screen.queryByRole('button', { name: 'إلغاء الحجز' })).not.toBeInTheDocument();
+  expect(await screen.findByText('Cancelled')).toBeInTheDocument();
+  expect(screen.getByText(/Refund pending/)).toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'Cancel booking' })).not.toBeInTheDocument();
 });
 
 test('an upcoming confirmed booking offers a cancel button', async () => {
@@ -95,7 +102,7 @@ test('an upcoming confirmed booking offers a cancel button', async () => {
   ]);
   renderProfile();
 
-  expect(await screen.findByRole('button', { name: 'إلغاء الحجز' })).toBeInTheDocument();
+  expect(await screen.findByRole('button', { name: 'Cancel booking' })).toBeInTheDocument();
 });
 
 test('a departed booking offers no cancel button', async () => {
@@ -109,5 +116,5 @@ test('a departed booking offers no cancel button', async () => {
   renderProfile();
 
   expect(await screen.findByText('Past Trip')).toBeInTheDocument();
-  expect(screen.queryByRole('button', { name: 'إلغاء الحجز' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'Cancel booking' })).not.toBeInTheDocument();
 });

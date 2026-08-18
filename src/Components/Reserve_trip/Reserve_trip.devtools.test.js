@@ -5,6 +5,13 @@ import axios from 'axios';
 import Reserve_trip from './Reserve_trip';
 import { BookingProvider, useBooking } from './BookingContext';
 import { ToastProvider } from '../ui/Toast/ToastContext';
+import { set_language } from '../../i18n';
+
+// This suite describes the English rendering, so it pins the language rather
+// than depending on the app default (Arabic).
+beforeEach(() => {
+  set_language('en');
+});
 
 function OpenBookingButton({ tripName }) {
   const { openBooking } = useBooking();

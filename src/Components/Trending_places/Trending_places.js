@@ -9,6 +9,7 @@ import Skeleton from "../ui/Skeleton/Skeleton";
 import EmptyState from "../ui/EmptyState/EmptyState";
 import ErrorState from "../ui/ErrorState/ErrorState";
 import { useBooking } from "../Reserve_trip/BookingContext";
+import { GALLERY_STRINGS } from "../../i18n/strings";
 
 export default function Trending_places() {
 
@@ -99,9 +100,9 @@ export default function Trending_places() {
 
           <div id="trending_button_section">
 
-            <div id="beach_trending" className={type === "Beach" ? "trending_type_active" : ""} onClick={() => set_type("Beach")}> Beach </div>
-            <div id="nature_trending" className={type === "Nature" ? "trending_type_active" : ""} onClick={() => set_type("Nature")}>Nature </div>
-            <div id="city_trending" className={type === "City" ? "trending_type_active" : ""} onClick={() => set_type("City")}> City </div>
+            <div id="beach_trending" className={type === "Beach" ? "trending_type_active" : ""} onClick={() => set_type("Beach")}> {GALLERY_STRINGS.beach} </div>
+            <div id="nature_trending" className={type === "Nature" ? "trending_type_active" : ""} onClick={() => set_type("Nature")}>{GALLERY_STRINGS.nature} </div>
+            <div id="city_trending" className={type === "City" ? "trending_type_active" : ""} onClick={() => set_type("City")}> {GALLERY_STRINGS.cities} </div>
 
           </div> {/*end of button section */ }
 

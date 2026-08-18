@@ -1,6 +1,7 @@
 import "./Footer.css";
 import "../../all.min.css"
 import { Link } from "react-router-dom";
+import { COMMON_STRINGS } from '../../i18n/common';
 export default function Footer() {
 
   function edit_style(className) {
@@ -16,7 +17,7 @@ export default function Footer() {
           
        <div id="footer_section1">
           
-         <Link to={"/"} id="footer_site-photo" title="Home page">Sama al Majd</Link>
+         <Link to={"/"} id="footer_site-photo" title={COMMON_STRINGS.home}>{COMMON_STRINGS.app_name}</Link>
 
           <div id="descFooterSection1">
             travel and discover the world with our website.

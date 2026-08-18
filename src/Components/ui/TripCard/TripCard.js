@@ -2,6 +2,7 @@ import { useState } from "react";
 import Card, { CardBody, CardMedia } from "../Card/Card";
 import StarRating from "../../Reviews/StarRating";
 import "./TripCard.css";
+import { COMMON_STRINGS } from "../../../i18n/common";
 
 export default function TripCard({
   name,
@@ -24,7 +25,7 @@ export default function TripCard({
         alt={name}
         className="trip-card-media"
         onClick={() => onSelect && onSelect(name)}
-        title="Travel now!"
+        title={COMMON_STRINGS.travel_now}
       >
         {discountPercent > 0 && (
           <span className="trip-card-badge">-{discountPercent}%</span>
@@ -69,7 +70,7 @@ export default function TripCard({
                 setShowInfo((open) => !open);
               }}
             >
-              {showInfo ? "less info" : "more info"}
+              {showInfo ? COMMON_STRINGS.less_info : COMMON_STRINGS.more_info}
               <i className="fa-solid fa-circle-info" aria-hidden="true"></i>
             </button>
 

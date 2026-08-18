@@ -1,5 +1,12 @@
 import { render, screen } from '@testing-library/react';
 import EmptyState from './EmptyState';
+import { set_language } from '../../../i18n';
+
+// This suite describes the English rendering, so it pins the language rather
+// than depending on the app default (Arabic).
+beforeEach(() => {
+  set_language('en');
+});
 
 test('renders the default title when none is given', () => {
   render(<EmptyState />);

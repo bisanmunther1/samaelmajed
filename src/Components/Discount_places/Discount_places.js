@@ -8,6 +8,7 @@ import Skeleton from '../ui/Skeleton/Skeleton';
 import EmptyState from '../ui/EmptyState/EmptyState';
 import ErrorState from '../ui/ErrorState/ErrorState';
 import { useBooking } from '../Reserve_trip/BookingContext';
+import { DISCOUNT_STRINGS } from '../../i18n/strings';
 
 
 export default function Discount_places()
@@ -56,7 +57,7 @@ export default function Discount_places()
       <ErrorState message="We couldn't load discounted trips." onRetry={fetch_discounts} />
     );
   } else if (status === "success" && content.length === 0) {
-    discount_content = <EmptyState icon="fa-regular fa-face-frown" title="No discounted trips right now" />;
+    discount_content = <EmptyState icon="fa-regular fa-face-frown" title={DISCOUNT_STRINGS.no_discounts} />;
   } else {
     discount_content = content.map((e) => (
       <TripCard

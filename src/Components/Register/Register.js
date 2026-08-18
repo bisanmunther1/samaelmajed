@@ -5,6 +5,7 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import Input from "../ui/Input/Input";
 import Button from "../ui/Button/Button";
+import { AUTH_STRINGS } from "../../i18n/strings";
 import { useToast } from "../ui/Toast/ToastContext";
 
 export default function Register() {
@@ -54,51 +55,51 @@ export default function Register() {
 
       <div className="form-box">
         <form onSubmit={Submit}>
-          <h2>SignUp</h2>
+          <h2>{AUTH_STRINGS.submit_register}</h2>
 
           <Input
-            label="Username"
-            placeholder="Username"
+            label={AUTH_STRINGS.username}
+            placeholder={AUTH_STRINGS.username}
             name="username"
             icon="fa-solid fa-user"
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            error={accept && (existence.length > 1 || existence[0] === 'name') ? "Name is already taken" : ""}
+            error={accept && (existence.length > 1 || existence[0] === 'name') ? AUTH_STRINGS.username_taken : ""}
           />
 
           <Input
-            label="Email"
+            label={AUTH_STRINGS.email}
             type="email"
-            placeholder="Email"
+            placeholder={AUTH_STRINGS.email}
             name="email"
             icon="fa-solid fa-envelope"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            error={accept && (existence.length > 1 || existence[0] === 'email') ? "Email is already taken" : ""}
+            error={accept && (existence.length > 1 || existence[0] === 'email') ? AUTH_STRINGS.email_taken : ""}
           />
 
           <Input
-            label="Password"
+            label={AUTH_STRINGS.password}
             type={show_password ? "text" : "password"}
-            placeholder="Password"
+            placeholder={AUTH_STRINGS.password}
             name="password"
             icon={show_password ? "fa-solid fa-eye-slash" : "fa-solid fa-eye"}
             onIconClick={() => set_show_password((v) => !v)}
-            iconLabel={show_password ? "Hide password" : "Show password"}
+            iconLabel={show_password ? AUTH_STRINGS.hide_password : AUTH_STRINGS.show_password}
             required
             minLength={5}
             maxLength={20}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            error={accept && password.length < 5 ? "Password must be more than 4 characters" : ""}
+            error={accept && password.length < 5 ? AUTH_STRINGS.password_too_short : ""}
           />
 
           <Input
-            label="Confirm password"
+            label={AUTH_STRINGS.confirm_password}
             type={show_password ? "text" : "password"}
-            placeholder="Confirm Password"
+            placeholder={AUTH_STRINGS.confirm_password}
             name="confirm pass"
             icon="fa-solid fa-lock"
             required
@@ -106,11 +107,11 @@ export default function Register() {
             maxLength={20}
             value={passwordR}
             onChange={(e) => setPasswordR(e.target.value)}
-            error={accept && passwordR !== password ? "Password does not match" : ""}
+            error={accept && passwordR !== password ? AUTH_STRINGS.passwords_do_not_match : ""}
           />
 
           <div className="Buttons">
-            <Button type="submit" fullWidth loading={submitting}>Register</Button>
+            <Button type="submit" fullWidth loading={submitting}>{AUTH_STRINGS.register_title}</Button>
             <p>
               Do you already have an account?
               <Link className="BLogin" to={"/Login/Login.js"}>

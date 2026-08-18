@@ -17,12 +17,17 @@ import PromoCodeInput from "../Promotions/PromoCodeInput";
 import { PROMO_STRINGS } from "../Promotions/strings";
 import { fetch_trip_availability } from "../Bookings/bookingsApi";
 import { BOOKING_STRINGS } from "../Bookings/strings";
+import { RESERVE_STRINGS } from "../../i18n/strings";
 
-const STEPS = [
-  { id: 1, label: "Transport" },
-  { id: 2, label: "Hotel" },
-  { id: 3, label: "Payment" },
-];
+// Built per render, not at module load: labels must come from the language
+// that is active now, not whichever one was active on import.
+function steps() {
+  return [
+    { id: 1, label: RESERVE_STRINGS.step_transport },
+    { id: 2, label: RESERVE_STRINGS.step_hotel },
+    { id: 3, label: RESERVE_STRINGS.step_payment },
+  ];
+}
 
 function today_iso() {
   return new Date().toISOString().substring(0, 10);
@@ -196,14 +201,14 @@ export default function Reserve_trip() {
     const username = localStorage.getItem("username");
 
     if (username === null || username === undefined) {
-      showToast("You don't have an account. Please log in to book.", "error");
+      showToast(RESERVE_STRINGS.need_account, "error");
       return false;
     }
     if (total_price <= 0) {
-      showToast("You need to select an access point and(or) a hotel.", "error");
+      showToast(RESERVE_STRINGS.need_selection, "error");
       return false;
     }
-    showToast("Reservation complete successfully, have a good time!", "success");
+    showToast(RESERVE_STRINGS.booked, "success");
     return true;
   }
 
@@ -243,7 +248,7 @@ export default function Reserve_trip() {
       await axios.post("http://127.0.0.1:8000/profile/update_profile/", payload);
     } catch (e) {
       console.log("error from trip log", e);
-      showToast("Something went wrong saving your booking. Please try again.", "error");
+      showToast(RESERVE_STRINGS.booking_error, "error");
     } finally {
       set_submitting(false);
       submitting_lock_ref.current = false;
@@ -290,13 +295,13 @@ export default function Reserve_trip() {
   const transport_items = render_transport_options(transport_tab);
 
   function transport_summary_text() {
-    if (selected_transport.kind === "none" || !selected_transport.name) return "no transport selected";
+    if (selected_transport.kind === "none" || !selected_transport.name) return RESERVE_STRINGS.no_transport_selected;
     const kind_label = selected_transport.kind === "plane" ? "Plane" : "Bus";
     return `${kind_label} · ${selected_transport.name}`;
   }
 
   function hotel_summary_text() {
-    if (!selected_hotel) return "no hotel selected";
+    if (!selected_hotel) return RESERVE_STRINGS.no_hotel_selected;
     return `Hotel · ${selected_hotel.name}, check-in ${hotel_reserve_date}`;
   }
 
@@ -304,14 +309,14 @@ export default function Reserve_trip() {
     features_status === "success" && features ? (
       <div id="reserve_footer_nav">
         <Button variant="ghost" size="sm" onClick={() => set_step((s) => Math.max(1, s - 1))} disabled={step === 1}>
-          Back
+          {RESERVE_STRINGS.back}
         </Button>
         <div id="reserve_footer_total">
-          Total <b>{payable_price}$</b>
+          {RESERVE_STRINGS.total} <b>{payable_price}$</b>
         </div>
         {step < 3 ? (
           <Button variant="secondary" size="sm" onClick={() => set_step((s) => Math.min(3, s + 1))}>
-            Next
+            {RESERVE_STRINGS.next}
           </Button>
         ) : (
           <span id="reserve_footer_spacer" aria-hidden="true" />
@@ -331,7 +336,7 @@ export default function Reserve_trip() {
 
       {features_status === "error" && (
         <ErrorState
-          message="We couldn't load this trip's details."
+          message={RESERVE_STRINGS.features_error}
           onRetry={() => set_retry_key((k) => k + 1)}
         />
       )}
@@ -339,7 +344,7 @@ export default function Reserve_trip() {
       {features_status === "success" && features && (
         <div id="reserve_root">
           <div id="reserve_steps">
-            {STEPS.map((s, i) => (
+            {steps().map((s, i) => (
               <Fragment key={s.id}>
                 <button
                   type="button"
@@ -351,7 +356,7 @@ export default function Reserve_trip() {
                   </span>
                   <span className="reserve_step_label">{s.label}</span>
                 </button>
-                {i < STEPS.length - 1 && (
+                {i < steps().length - 1 && (
                   <span className={`reserve_step_connector${step > s.id ? " is_done" : ""}`}></span>
                 )}
               </Fragment>
@@ -361,7 +366,7 @@ export default function Reserve_trip() {
           {step === 1 && (
             <div id="reserve_transport_grid">
               <div>
-                <div className="reserve_section_header">more photos for {tripName}</div>
+                <div className="reserve_section_header">{RESERVE_STRINGS.more_photos(tripName)}</div>
                 <div id="photos_reserve_section" title="click to view image">
                   <div id="photo1" style={{ backgroundImage: `url('${features.img1}')` }} onClick={() => set_lightbox_image(features.img1)}></div>
 
@@ -376,7 +381,7 @@ export default function Reserve_trip() {
               </div>
 
               <div>
-                <div className="reserve_section_header">starting points</div>
+                <div className="reserve_section_header">{RESERVE_STRINGS.starting_points}</div>
 
                 <div className="reserve_option_tabs">
                   <button
@@ -384,14 +389,14 @@ export default function Reserve_trip() {
                     className={`reserve_option_tab${transport_tab === "plane" ? " is_active" : ""}`}
                     onClick={() => set_transport_tab("plane")}
                   >
-                    By plane
+                    {RESERVE_STRINGS.by_plane}
                   </button>
                   <button
                     type="button"
                     className={`reserve_option_tab${transport_tab === "bus" ? " is_active" : ""}`}
                     onClick={() => set_transport_tab("bus")}
                   >
-                    By bus
+                    {RESERVE_STRINGS.by_bus}
                   </button>
                 </div>
 
@@ -404,7 +409,7 @@ export default function Reserve_trip() {
                 </div>
 
                 <div id="no_access_container" className={selected_transport.kind === "none" ? "reserve_option_selected" : ""}>
-                  <label htmlFor="no_access_point">i don't need transportation</label>
+                  <label htmlFor="no_access_point">{RESERVE_STRINGS.no_transport_needed}</label>
                   <input
                     type="radio"
                     id="no_access_point"
@@ -432,7 +437,7 @@ export default function Reserve_trip() {
               </div>
 
               <div>
-                <div className="reserve_section_header">book a hotel</div>
+                <div className="reserve_section_header">{RESERVE_STRINGS.book_hotel}</div>
 
                 <div id="hotel_options">
                   <div
@@ -441,11 +446,11 @@ export default function Reserve_trip() {
                     onClick={() => handle_hotel_change(null)}
                   >
                     <input id="no_hotel_button" type="radio" name="hotel" checked={selected_hotel === null} readOnly />
-                    <div id="no_hotel_label">No Hotel</div>
+                    <div id="no_hotel_label">{RESERVE_STRINGS.no_hotel}</div>
                   </div>
 
                   {hotel_options_status === "error" && (
-                    <ErrorState message="Couldn't load hotel prices for this trip." />
+                    <ErrorState message={RESERVE_STRINGS.hotel_prices_error} />
                   )}
 
                   {hotel_options.map((h) => (
@@ -465,7 +470,7 @@ export default function Reserve_trip() {
                 {selected_hotel && (
                   <Input
                     type="date"
-                    label="hotel reservation date:"
+                    label={RESERVE_STRINGS.hotel_date}
                     name="hotel_reserve_date"
                     containerClassName="hotel_reservation_date"
                     value={hotel_reserve_date}
@@ -484,7 +489,7 @@ export default function Reserve_trip() {
                 </div>
                 <div id="reserve_summary_rows">
                   <div className="reserve_summary_row">
-                    <span>Transport</span>
+                    <span>{RESERVE_STRINGS.transport}</span>
                     <b>{selected_transport.price}$</b>
                   </div>
                   <div className="reserve_summary_row">
@@ -552,12 +557,12 @@ export default function Reserve_trip() {
               ) : (
                 <div id="reserve_payment_actions">
                   <Button variant="primary" fullWidth onClick={ready_to_pay_click}>
-                    ready to pay
+                    {RESERVE_STRINGS.ready_to_pay}
                   </Button>
 
                   {process.env.REACT_APP_DEV_TOOLS === "true" && (
                     <Button variant="ghost" size="sm" fullWidth loading={submitting} onClick={pay_testing_click}>
-                      seed booking (dev only)
+                      {RESERVE_STRINGS.seed_booking}
                     </Button>
                   )}
                 </div>

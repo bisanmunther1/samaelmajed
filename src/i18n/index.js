@@ -7,7 +7,10 @@ export const STORAGE_KEY = "language";
 export const DEFAULT_LANGUAGE = "ar";
 export const LANGUAGES = ["ar", "en"];
 
-const NAMESPACES = ["common", "reviews", "filters", "promotions", "bookings", "partner", "errors"];
+const NAMESPACES = [
+  "common", "auth", "profile", "gallery", "discount", "reserve",
+  "reviews", "filters", "promotions", "bookings", "partner", "errors",
+];
 
 export function stored_language() {
   try {

@@ -4,6 +4,13 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ToastProvider } from '../ui/Toast/ToastContext';
 import ReviewList from './ReviewList';
 import { delete_review, fetch_reviews, review_error_message } from './reviewsApi';
+import { set_language } from '../../i18n';
+
+// This suite describes the English rendering, so it pins the language rather
+// than depending on the app default (Arabic).
+beforeEach(() => {
+  set_language('en');
+});
 
 function page(results, count = results.length) {
   return { count, results };
@@ -25,7 +32,7 @@ function renderList(props = {}) {
 
 beforeEach(() => {
   jest.clearAllMocks();
-  review_error_message.mockReturnValue('حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.');
+  review_error_message.mockReturnValue('Something unexpected happened. Please try again.');
 });
 
 test('shows a skeleton until the first page arrives', () => {
@@ -47,14 +54,14 @@ test('shows an empty state when there are no reviews', async () => {
   fetch_reviews.mockResolvedValue(page([]));
   renderList();
 
-  expect(await screen.findByText('لا توجد مراجعات بعد')).toBeInTheDocument();
+  expect(await screen.findByText('No reviews yet')).toBeInTheDocument();
 });
 
 test('shows an error state with retry when loading fails', async () => {
   fetch_reviews.mockRejectedValue(new Error('network'));
   renderList();
 
-  expect(await screen.findByText('تعذّر تحميل المراجعات.')).toBeInTheDocument();
+  expect(await screen.findByText("We couldn't load the reviews.")).toBeInTheDocument();
 
   fetch_reviews.mockResolvedValue(page([REVIEW]));
   fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
@@ -79,8 +86,8 @@ test('hides edit and delete for a review that is not the user\'s own', async () 
   renderList();
   await screen.findByText('رحلة رائعة');
 
-  expect(screen.queryByRole('button', { name: 'تعديل' })).not.toBeInTheDocument();
-  expect(screen.queryByRole('button', { name: 'حذف' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
 });
 
 test('offers inline editing of the user\'s own review', async () => {
@@ -88,10 +95,10 @@ test('offers inline editing of the user\'s own review', async () => {
   renderList();
   await screen.findByText('رحلة رائعة');
 
-  fireEvent.click(screen.getByRole('button', { name: 'تعديل' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
-  expect(screen.getByRole('button', { name: 'حفظ التعديل' })).toBeInTheDocument();
-  expect(screen.getByLabelText('تعليقك (اختياري)')).toHaveValue('رحلة رائعة');
+  expect(screen.getByRole('button', { name: 'Save changes' })).toBeInTheDocument();
+  expect(screen.getByLabelText('Your comment (optional)')).toHaveValue('رحلة رائعة');
 });
 
 test('deletes the review after the confirmation is accepted', async () => {
@@ -103,7 +110,7 @@ test('deletes the review after the confirmation is accepted', async () => {
   renderList({ onChanged: handleChanged });
   await screen.findByText('رحلة رائعة');
 
-  fireEvent.click(screen.getByRole('button', { name: 'حذف' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
 
   await waitFor(() => expect(delete_review).toHaveBeenCalledWith(1));
   await waitFor(() => expect(handleChanged).toHaveBeenCalled());
@@ -117,7 +124,7 @@ test('does not delete when the confirmation is dismissed', async () => {
   renderList();
   await screen.findByText('رحلة رائعة');
 
-  fireEvent.click(screen.getByRole('button', { name: 'حذف' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
 
   expect(delete_review).not.toHaveBeenCalled();
   confirmSpy.mockRestore();
@@ -128,8 +135,8 @@ test('pages through the results', async () => {
   renderList();
   await screen.findByText('رحلة رائعة');
 
-  expect(screen.getByText('صفحة 1 من 3')).toBeInTheDocument();
-  fireEvent.click(screen.getByRole('button', { name: 'التالي' }));
+  expect(screen.getByText('Page 1 of 3')).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Next' }));
 
   await waitFor(() => expect(fetch_reviews).toHaveBeenLastCalledWith(
     expect.objectContaining({ page: 2 })
@@ -141,5 +148,5 @@ test('shows no pager when everything fits on one page', async () => {
   renderList();
   await screen.findByText('رحلة رائعة');
 
-  expect(screen.queryByRole('button', { name: 'التالي' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'Next' })).not.toBeInTheDocument();
 });

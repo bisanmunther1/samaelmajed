@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useRef, useState } from "react";
 import "./Toast.css";
+import { COMMON_STRINGS } from "../../../i18n/common";
 
 const ToastContext = createContext(null);
 
@@ -42,7 +43,7 @@ export function ToastProvider({ children }) {
             <button
               type="button"
               className="ui-toast-close"
-              aria-label="Dismiss"
+              aria-label={COMMON_STRINGS.dismiss}
               onClick={() => dismissToast(toast.id)}
             >
               <i className="fa-solid fa-xmark" aria-hidden="true"></i>

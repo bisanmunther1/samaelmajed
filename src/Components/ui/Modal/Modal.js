@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import "./Modal.css";
+import { COMMON_STRINGS } from "../../../i18n/common";
 
 export default function Modal({ isOpen, onClose, title, children, footer, size = "md" }) {
   useEffect(() => {
@@ -33,7 +34,7 @@ export default function Modal({ isOpen, onClose, title, children, footer, size =
       >
         <div className="ui-modal-header">
           {title && <h2 className="ui-modal-title">{title}</h2>}
-          <button type="button" className="ui-modal-close" aria-label="Close" onClick={onClose}>
+          <button type="button" className="ui-modal-close" aria-label={COMMON_STRINGS.close} onClick={onClose}>
             <i className="fa-solid fa-xmark" aria-hidden="true"></i>
           </button>
         </div>

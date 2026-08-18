@@ -1,5 +1,12 @@
 import { render, screen, act } from '@testing-library/react';
 import { ToastProvider, useToast } from './ToastContext';
+import { set_language } from '../../../i18n';
+
+// This suite describes the English rendering, so it pins the language rather
+// than depending on the app default (Arabic).
+beforeEach(() => {
+  set_language('en');
+});
 
 function ToastTrigger({ message, type, duration }) {
   const { showToast } = useToast();

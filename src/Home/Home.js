@@ -4,6 +4,7 @@ import Gallery from "../Components/Gallery/Gallery";
  
 import Trending_places from "../Components/Trending_places/Trending_places";
 import Discount_places from "../Components/Discount_places/Discount_places";
+import { COMMON_STRINGS } from '../i18n/common';
 
 export default function Home()
 {
@@ -20,7 +21,7 @@ export default function Home()
       </video>
       
         <div id="img_and_title_container">
-          <div className="home_img_site" >Sama al Majd</div>
+          <div className="home_img_site" >{COMMON_STRINGS.app_name}</div>
           <div className="home_title_site">
             All the world on one site </div>
         </div>

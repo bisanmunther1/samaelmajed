@@ -9,6 +9,7 @@ import ErrorState from "../ui/ErrorState/ErrorState";
 import Card from "../ui/Card/Card";
 import Avatar from "../ui/Avatar/Avatar";
 import Button from "../ui/Button/Button";
+import { PROFILE_STRINGS } from "../../i18n/strings";
 import CancelBookingDialog from "../Bookings/CancelBookingDialog";
 import { BOOKING_STRINGS, REFUND_STATUS_LABELS } from "../Bookings/strings";
 import PendingReviews from "../Reviews/PendingReviews";
@@ -90,19 +91,19 @@ export default function Profile() {
   const photo_src = profile && profile['photo'] ? `${API_BASE}/media/${profile['photo']}` : null;
 
   const info_rows = profile ? [
-    { label: "First Name", value: profile['first_name'] },
-    { label: "Last Name", value: profile['last_name'] },
-    { label: "Email", value: profile['email'] },
-    { label: "Country", value: profile['country'] },
-    { label: "Birth date", value: profile['birth_date'] },
-    { label: "Phone number", value: profile['phone'] },
+    { label: PROFILE_STRINGS.first_name, value: profile['first_name'] },
+    { label: PROFILE_STRINGS.last_name, value: profile['last_name'] },
+    { label: PROFILE_STRINGS.email, value: profile['email'] },
+    { label: PROFILE_STRINGS.country, value: profile['country'] },
+    { label: PROFILE_STRINGS.birth_date, value: profile['birth_date'] },
+    { label: PROFILE_STRINGS.phone, value: profile['phone'] },
   ] : [];
 
   if (profile_status === "error") {
     return (
       <div id="profile_page">
         <div id="profile_root">
-          <ErrorState message="We couldn't load your profile." onRetry={() => set_retry_key((k) => k + 1)} />
+          <ErrorState message={PROFILE_STRINGS.load_profile_error} onRetry={() => set_retry_key((k) => k + 1)} />
         </div>
       </div>
     );
@@ -118,7 +119,7 @@ export default function Profile() {
             <span id="profile_username">{username}</span>
           </div>
           <Link id="edit_my_profile_button"
-             to={"/Profile/Profile_edit_info/Profile_edit_info.js"} ><i className='fa-solid fa-pen-to-square'></i> Edit Profile</Link>
+             to={"/Profile/Profile_edit_info/Profile_edit_info.js"} ><i className='fa-solid fa-pen-to-square'></i> {PROFILE_STRINGS.edit_profile}</Link>
         </div>
 
         {profile_status === "loading" || !profile ? (
@@ -132,7 +133,7 @@ export default function Profile() {
             <div id="profile_grid">
               <Card className="profile_avatar_card">
                 <Avatar name={username} src={photo_src} size={140} />
-                <div className="profile_member_since">Member since {profile['joined_at']}</div>
+                <div className="profile_member_since">{PROFILE_STRINGS.member_since(profile['joined_at'])}</div>
               </Card>
 
               <Card className="profile_info_card">
@@ -146,18 +147,18 @@ export default function Profile() {
                 </div>
 
                 <div className="profile_bio_row">
-                  <span className="profile_info_label">Bio</span>
+                  <span className="profile_info_label">{PROFILE_STRINGS.bio}</span>
                   {profile['bio'] ? (
                     <p className="profile_bio_value">{profile['bio']}</p>
                   ) : (
-                    <p className="profile_bio_empty">Add a bio</p>
+                    <p className="profile_bio_empty">{PROFILE_STRINGS.add_bio}</p>
                   )}
                 </div>
               </Card>
             </div>
 
             <div id="profile_trips_section">
-              <div id="profile_my_trip_word">My Trips</div>
+              <div id="profile_my_trip_word">{PROFILE_STRINGS.my_trips}</div>
 
               <PendingReviews />
 
@@ -171,22 +172,22 @@ export default function Profile() {
                 )}
 
                 {bookings_status === "error" && (
-                  <ErrorState message="We couldn't load your bookings." onRetry={() => set_retry_key((k) => k + 1)} />
+                  <ErrorState message={PROFILE_STRINGS.load_bookings_error} onRetry={() => set_retry_key((k) => k + 1)} />
                 )}
 
                 {bookings_status === "success" && bookings.length === 0 && (
-                  <EmptyState icon="fa-solid fa-suitcase-rolling" title="No trips booked yet" />
+                  <EmptyState icon="fa-solid fa-suitcase-rolling" title={PROFILE_STRINGS.no_bookings} />
                 )}
 
                 {bookings_status === "success" && bookings.length > 0 && (
                   <table id="profile_bookings_table">
                     <thead>
                       <tr>
-                        <th>Trip Name</th>
-                        <th>Trip Date</th>
-                        <th>Price</th>
-                        <th>Hotel name</th>
-                        <th>hotel reservation date</th>
+                        <th>{PROFILE_STRINGS.col_trip}</th>
+                        <th>{PROFILE_STRINGS.col_trip_date}</th>
+                        <th>{PROFILE_STRINGS.col_price}</th>
+                        <th>{PROFILE_STRINGS.col_hotel}</th>
+                        <th>{PROFILE_STRINGS.col_hotel_date}</th>
                         <th></th>
                       </tr>
                     </thead>

@@ -4,6 +4,13 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import axios from 'axios';
 import Profile_edit_info from './Profile_edit_info';
 import { ToastProvider } from '../../ui/Toast/ToastContext';
+import { set_language } from '../../../i18n';
+
+// This suite describes the English rendering, so it pins the language rather
+// than depending on the app default (Arabic).
+beforeEach(() => {
+  set_language('en');
+});
 
 function renderPage() {
   return render(
@@ -33,8 +40,8 @@ test('populates the form once the profile loads', async () => {
   });
   renderPage();
 
-  expect(await screen.findByLabelText('First Name:')).toHaveValue('Ana');
-  expect(screen.getByLabelText('Country :')).toHaveValue('Egypt');
+  expect(await screen.findByLabelText('First Name')).toHaveValue('Ana');
+  expect(screen.getByLabelText('Country')).toHaveValue('Egypt');
 });
 
 test('shows an error state with retry when the profile fails to load', async () => {
@@ -48,7 +55,7 @@ test('shows an error state with retry when the profile fails to load', async () 
   });
   fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
 
-  expect(await screen.findByLabelText('First Name:')).toHaveValue('Ana');
+  expect(await screen.findByLabelText('First Name')).toHaveValue('Ana');
 });
 
 test('submits the form and shows a success toast', async () => {
@@ -62,9 +69,9 @@ test('submits the form and shows a success toast', async () => {
   });
 
   renderPage();
-  await screen.findByLabelText('First Name:');
+  await screen.findByLabelText('First Name');
 
-  fireEvent.change(screen.getByLabelText('First Name:'), { target: { value: 'Updated' } });
+  fireEvent.change(screen.getByLabelText('First Name'), { target: { value: 'Updated' } });
   fireEvent.click(screen.getByRole('button', { name: 'submit' }));
 
   expect(await screen.findByText('Your profile was updated successfully.')).toBeInTheDocument();
@@ -80,10 +87,10 @@ test('rejects an oversized photo with an inline error instead of submitting', as
     data: { first_name: '', last_name: '', phone: '', country: '', birth_date: '', bio: '' },
   });
   renderPage();
-  await screen.findByLabelText('First Name:');
+  await screen.findByLabelText('First Name');
 
   const bigFile = new File([new ArrayBuffer(3 * 1024 * 1024)], 'big.png', { type: 'image/png' });
-  fireEvent.change(screen.getByLabelText('Photo :'), { target: { files: [bigFile] } });
+  fireEvent.change(screen.getByLabelText('Photo'), { target: { files: [bigFile] } });
   fireEvent.click(screen.getByRole('button', { name: 'submit' }));
 
   expect(await screen.findByText('The photo size should not exceed 2MB')).toBeInTheDocument();

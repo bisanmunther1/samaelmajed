@@ -1,5 +1,12 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import Modal from './Modal';
+import { set_language } from '../../../i18n';
+
+// This suite describes the English rendering, so it pins the language rather
+// than depending on the app default (Arabic).
+beforeEach(() => {
+  set_language('en');
+});
 
 test('renders nothing when isOpen is false', () => {
   render(<Modal isOpen={false} onClose={() => {}} title="Hidden">Content</Modal>);

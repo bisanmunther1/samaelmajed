@@ -5,6 +5,13 @@ import { MemoryRouter } from 'react-router-dom';
 import axios from 'axios';
 import Register from './Register';
 import { ToastProvider } from '../ui/Toast/ToastContext';
+import { set_language } from '../../i18n';
+
+// This suite describes the English rendering, so it pins the language rather
+// than depending on the app default (Arabic).
+beforeEach(() => {
+  set_language('en');
+});
 
 function renderRegister() {
   render(

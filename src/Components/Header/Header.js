@@ -121,14 +121,14 @@ export default function Header() {
     <header className="Header_Header">
       <div className="Header_bar">
         <div className="Header_Home-About">
-          <Link to={"/"} className="Header_site-image" title="Home page" aria-label="Home page" onClick={closeMenu}>Sama al Majd</Link>
-          <nav className="Header_desktop-nav" aria-label="Primary">
+          <Link to={"/"} className="Header_site-image" title={COMMON_STRINGS.home} aria-label={COMMON_STRINGS.home} onClick={closeMenu}>{COMMON_STRINGS.app_name}</Link>
+          <nav className="Header_desktop-nav" aria-label={COMMON_STRINGS.nav_primary}>
             <Link to={"/"} className="Header_Button-Home">
-              Home
+              {COMMON_STRINGS.home}
             </Link>
 
             <Link to={"/About/About.js"} className="Header_Button-About">
-              About
+              {COMMON_STRINGS.about}
             </Link>
 
             {is_partner && (
@@ -145,17 +145,17 @@ export default function Header() {
           {curr_name === null ? (
             <>
               <Link to={"/Register/Register.js"} className="Header_Button-Register">
-                Register
+                {COMMON_STRINGS.register}
               </Link>
               <Link to={"/Login/Login.js"} className="Header_Button-Login">
-                Login
+                {COMMON_STRINGS.login}
               </Link>
             </>
           ) : (
             <>
               <Link className="Header_Button-Logout" to={"/Profile/Profile.js"}> {curr_name}</Link>
               <Button variant="ghost" size="sm" onClick={logOut}>
-                Log out
+                {COMMON_STRINGS.logout}
               </Button>
             </>
           )}
@@ -173,12 +173,12 @@ export default function Header() {
       </div>
 
       {menuOpen && (
-        <nav className="Header_mobile-menu" aria-label="Primary">
+        <nav className="Header_mobile-menu" aria-label={COMMON_STRINGS.nav_primary}>
           <Link to={"/"} className="Header_Button-Home" onClick={closeMenu}>
-            Home
+            {COMMON_STRINGS.home}
           </Link>
           <Link to={"/About/About.js"} className="Header_Button-About" onClick={closeMenu}>
-            About
+            {COMMON_STRINGS.about}
           </Link>
           {is_partner && (
             <Link to={"/Partner/Partner.js"} className="Header_Button-About" onClick={closeMenu}>
@@ -189,17 +189,17 @@ export default function Header() {
           {curr_name === null ? (
             <>
               <Link to={"/Register/Register.js"} className="Header_Button-Register" onClick={closeMenu}>
-                Register
+                {COMMON_STRINGS.register}
               </Link>
               <Link to={"/Login/Login.js"} className="Header_Button-Login" onClick={closeMenu}>
-                Login
+                {COMMON_STRINGS.login}
               </Link>
             </>
           ) : (
             <>
               <Link className="Header_Button-Logout" to={"/Profile/Profile.js"} onClick={closeMenu}> {curr_name}</Link>
               <Button variant="ghost" size="sm" onClick={() => { closeMenu(); logOut(); }}>
-                Log out
+                {COMMON_STRINGS.logout}
               </Button>
             </>
           )}

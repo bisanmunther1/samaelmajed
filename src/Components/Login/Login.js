@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import Input from "../ui/Input/Input";
 import Button from "../ui/Button/Button";
+import { AUTH_STRINGS } from "../../i18n/strings";
 
 export default function Login() {
 
@@ -49,16 +50,16 @@ export default function Login() {
     <div className="login">
       <div className="wrapper">
         <form onSubmit={Submit}>
-          <h1>Log in</h1>
+          <h1>{AUTH_STRINGS.login_title}</h1>
 
           {accept && Error === "error" && (
-            <p className="error">invalid user name or password</p>
+            <p className="error">{AUTH_STRINGS.invalid_credentials}</p>
           )}
 
           <Input
-            label="Username"
+            label={AUTH_STRINGS.username}
             name="username"
-            placeholder="Username"
+            placeholder={AUTH_STRINGS.username}
             icon="fa-solid fa-user"
             required
             value={name}
@@ -66,28 +67,28 @@ export default function Login() {
           />
 
           <Input
-            label="Password"
+            label={AUTH_STRINGS.password}
             id="pass"
             type={show_password ? "text" : "password"}
-            placeholder="Password"
+            placeholder={AUTH_STRINGS.password}
             icon={show_password ? "fa-solid fa-eye-slash" : "fa-solid fa-eye"}
             onIconClick={() => set_show_password((v) => !v)}
-            iconLabel={show_password ? "Hide password" : "Show password"}
+            iconLabel={show_password ? AUTH_STRINGS.hide_password : AUTH_STRINGS.show_password}
             required
             maxLength={20}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            error={accept && password.length < 5 ? "Password must be more than 4 characters" : ""}
+            error={accept && password.length < 5 ? AUTH_STRINGS.password_too_short : ""}
           />
 
           <Button type="submit" fullWidth loading={submitting}>
-            Login
+            {AUTH_STRINGS.submit_login}
           </Button>
 
           <div className="Link-to-Register">
             <p>
-              Don't have an account ?
-              <Link to={"/Register/Register.js"} className="links"> Register</Link>
+              {AUTH_STRINGS.no_account}
+              <Link to={"/Register/Register.js"} className="links"> {AUTH_STRINGS.go_register}</Link>
             </p>
           </div>
         </form>

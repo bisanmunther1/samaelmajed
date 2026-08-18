@@ -1,5 +1,12 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import TripCard from './TripCard';
+import { set_language } from '../../../i18n';
+
+// This suite describes the English rendering, so it pins the language rather
+// than depending on the app default (Arabic).
+beforeEach(() => {
+  set_language('en');
+});
 
 test('renders name, price, rate and visitor count', () => {
   render(<TripCard name="Cairo Trip" image="/img.jpg" price={100} rate={4.5} visitors={20} />);

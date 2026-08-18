@@ -4,6 +4,13 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import axios from 'axios';
 import Gallery from './Gallery';
 import { BookingProvider } from '../Reserve_trip/BookingContext';
+import { set_language } from '../../i18n';
+
+// This suite describes the English rendering, so it pins the language rather
+// than depending on the app default (Arabic).
+beforeEach(() => {
+  set_language('en');
+});
 
 function renderGallery() {
   return render(
@@ -91,7 +98,7 @@ test('filtering by destination is sent as a query param', async () => {
   renderGallery();
   await screen.findByRole('option', { name: 'Aswan' });
 
-  fireEvent.change(screen.getByLabelText('الوجهة'), { target: { value: 'Aswan' } });
+  fireEvent.change(screen.getByLabelText('Destination'), { target: { value: 'Aswan' } });
 
   await waitFor(() => {
     const lastCall = axios.post.mock.calls[axios.post.mock.calls.length - 1];

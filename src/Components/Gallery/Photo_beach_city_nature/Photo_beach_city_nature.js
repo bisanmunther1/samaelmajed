@@ -8,6 +8,7 @@ import EmptyState from "../../ui/EmptyState/EmptyState";
 import ErrorState from "../../ui/ErrorState/ErrorState";
 import { useBooking } from "../../Reserve_trip/BookingContext";
 import { FILTER_ERROR_MESSAGES, FILTER_STRINGS } from "../../Filters/strings";
+import { GALLERY_STRINGS } from "../../../i18n/strings";
 
 // The listing endpoint predates FR-39 and still reads these six keys straight
 // off the POST body (it KeyErrors without them). The retired Gallery filter
@@ -113,7 +114,7 @@ export default function Photo_beach_city_nature(props) {
   if (status === "error") {
     return (
       <ErrorState
-        message={error_message || "We couldn't load these trips. Please try again."}
+        message={error_message || GALLERY_STRINGS.load_error}
         onRetry={() => set_retry_key((k) => k + 1)}
       />
     );
@@ -124,7 +125,7 @@ export default function Photo_beach_city_nature(props) {
     return (
       <EmptyState
         icon="fa-regular fa-face-frown"
-        title={filtered ? FILTER_STRINGS.empty_title : "No trips match your filters"}
+        title={filtered ? FILTER_STRINGS.empty_title : GALLERY_STRINGS.no_match}
         message={filtered ? FILTER_STRINGS.empty_message : undefined}
       />
     );

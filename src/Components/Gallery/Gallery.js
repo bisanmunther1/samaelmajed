@@ -5,6 +5,7 @@ import Photo_beach_city_nature from "./Photo_beach_city_nature/Photo_beach_city_
 import { Background_images } from "./Background_images/Background_images_array";
 import FilterBar from "../Filters/FilterBar";
 import useUrlFilters from "../Filters/useUrlFilters";
+import { GALLERY_STRINGS } from "../../i18n/strings";
 
 const TYPE_CONFIG = {
   Beach: {
@@ -55,7 +56,7 @@ export default function Gallery() {
   return (
     <>
       <div id="gallery_root" style={{ backgroundImage: `url("${TYPE_CONFIG[type].background}")` }}>
-        <p className="gallery_choose_sentence">Book your Trip:</p>
+        <p className="gallery_choose_sentence">{GALLERY_STRINGS.choose}</p>
 
         <div id="gallery_button_section">
           <button
@@ -63,7 +64,7 @@ export default function Gallery() {
             className={type === "Beach" ? "gallery_type_active" : ""}
             onClick={() => selectType("Beach")}
           >
-            Beach
+            {GALLERY_STRINGS.beach}
             <i className="fa-solid fa-water" style={{ paddingLeft: "5px", fontSize: "20px" }}></i>
           </button>
 
@@ -72,7 +73,7 @@ export default function Gallery() {
             className={type === "Nature" ? "gallery_type_active" : ""}
             onClick={() => selectType("Nature")}
           >
-            Nature
+            {GALLERY_STRINGS.nature}
             <i className="fa-solid fa-leaf" style={{ paddingLeft: "5px", fontSize: "20px" }}></i>
           </button>
 
@@ -81,13 +82,13 @@ export default function Gallery() {
             className={type === "City" ? "gallery_type_active" : ""}
             onClick={() => selectType("City")}
           >
-            Cities
+            {GALLERY_STRINGS.cities}
             <i className="fa-solid fa-city" style={{ paddingLeft: "5px", fontSize: "20px" }}></i>
           </button>
 
           <button id="gallery_view_button" onClick={toggleView}>
             <span id="gallery_view_text_content">
-              {number_of_images === 8 ? "View All" : "View Less"}
+              {number_of_images === 8 ? GALLERY_STRINGS.view_all : GALLERY_STRINGS.view_less}
             </span>
             <i className="fa-solid fa-bars" style={{ paddingLeft: "5px", fontSize: "20px" }}></i>
           </button>

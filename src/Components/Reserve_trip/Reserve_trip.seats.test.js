@@ -7,6 +7,7 @@ import Reserve_trip from './Reserve_trip';
 import { BookingProvider, useBooking } from './BookingContext';
 import { ToastProvider } from '../ui/Toast/ToastContext';
 import { fetch_trip_availability } from '../Bookings/bookingsApi';
+import { set_language } from '../../i18n';
 
 function OpenBookingButton({ tripName }) {
   const { openBooking } = useBooking();
@@ -61,17 +62,20 @@ beforeEach(() => {
   localStorage.setItem('username', 'testuser');
   mockAxios();
   fetch_trip_availability.mockResolvedValue(availability(4));
+  // This suite describes the English rendering, so it pins the language rather
+  // than depending on the app default (Arabic).
+  set_language('en');
 });
 
 test('the seat selector offers exactly the remaining seats', async () => {
   renderHarness();
   await open_to_payment();
 
-  const selector = await screen.findByLabelText('عدد المسافرين');
+  const selector = await screen.findByLabelText('Travellers');
   const values = Array.from(selector.options).map((option) => Number(option.value));
 
   expect(values).toEqual([1, 2, 3, 4]);
-  expect(screen.getByText('المقاعد المتبقية: 4')).toBeInTheDocument();
+  expect(screen.getByText('Seats remaining: 4')).toBeInTheDocument();
 });
 
 test('a sold-out departure offers no seats and says so', async () => {
@@ -79,8 +83,8 @@ test('a sold-out departure offers no seats and says so', async () => {
   renderHarness();
   await open_to_payment();
 
-  expect(await screen.findByText('مكتمل الحجز')).toBeInTheDocument();
-  expect(screen.queryByLabelText('عدد المسافرين')).not.toBeInTheDocument();
+  expect(await screen.findByText('Sold out')).toBeInTheDocument();
+  expect(screen.queryByLabelText('Travellers')).not.toBeInTheDocument();
 });
 
 test('the chosen seat count is sent with the booking', async () => {
@@ -88,7 +92,7 @@ test('the chosen seat count is sent with the booking', async () => {
   renderHarness();
   await open_to_payment();
 
-  fireEvent.change(await screen.findByLabelText('عدد المسافرين'), { target: { value: '3' } });
+  fireEvent.change(await screen.findByLabelText('Travellers'), { target: { value: '3' } });
   fireEvent.click(await screen.findByRole('button', { name: /seed booking/i }));
 
   await waitFor(() => expect(axios.post).toHaveBeenCalledWith(
@@ -103,7 +107,7 @@ test('a booking defaults to one seat', async () => {
   process.env.REACT_APP_DEV_TOOLS = 'true';
   renderHarness();
   await open_to_payment();
-  await screen.findByLabelText('عدد المسافرين');
+  await screen.findByLabelText('Travellers');
 
   fireEvent.click(await screen.findByRole('button', { name: /seed booking/i }));
 
@@ -120,6 +124,6 @@ test('a failed availability lookup does not block the flow', async () => {
   renderHarness();
   await open_to_payment();
 
-  expect(await screen.findByText('جارٍ التحقق من المقاعد…')).toBeInTheDocument();
+  expect(await screen.findByText('Checking availability…')).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'ready to pay' })).toBeInTheDocument();
 });
